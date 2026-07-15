@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
 import { formatMoney } from "@/lib/format";
-import { Sparkle, LogOut, Store } from "lucide-react";
+import { Sparkles, LogOut, Store } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({ component: Profile });
 
@@ -66,7 +66,7 @@ function Profile() {
           <h1 className="text-2xl font-black text-plum truncate">{name}</h1>
           <p className="text-sm text-plum/60 truncate">{user.email}</p>
           <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-berry/15 px-3 py-1 text-[10px] font-extrabold text-berry tracking-widest">
-            GOLD MEMBER <Sparkle className="h-3 w-3 fill-berry" />
+            GOLD MEMBER <Sparkles className="h-3 w-3" />
           </span>
         </div>
       </div>

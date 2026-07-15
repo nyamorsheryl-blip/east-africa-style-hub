@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -31,6 +32,11 @@ const ShopRoute = ShopRouteImport.update({
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdersRoute = OrdersRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/orders': typeof OrdersRoute
+  '/profile': typeof ProfileRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/orders': typeof OrdersRoute
+  '/profile': typeof ProfileRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/orders': typeof OrdersRoute
+  '/profile': typeof ProfileRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/orders'
+    | '/profile'
     | '/seller'
     | '/shop'
     | '/wishlist'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/orders'
+    | '/profile'
     | '/seller'
     | '/shop'
     | '/wishlist'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/orders'
+    | '/profile'
     | '/seller'
     | '/shop'
     | '/wishlist'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   OrdersRoute: typeof OrdersRoute
+  ProfileRoute: typeof ProfileRoute
   SellerRoute: typeof SellerRoute
   ShopRoute: typeof ShopRoute
   WishlistRoute: typeof WishlistRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orders': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   OrdersRoute: OrdersRoute,
+  ProfileRoute: ProfileRoute,
   SellerRoute: SellerRoute,
   ShopRoute: ShopRoute,
   WishlistRoute: WishlistRoute,

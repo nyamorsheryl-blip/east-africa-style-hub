@@ -5,8 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * MaeLove design system — Kitenge jewel tones, liquid glass surfaces.
- * All colors defined as OKLCH tokens; semantic utility classes only.
+ * MaeLove design system — Blush, Plum, Berry & Lime liquid glass.
  */
 
 @theme inline {
@@ -36,50 +35,65 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-jewel-teal: var(--jewel-teal);
-  --color-jewel-saffron: var(--jewel-saffron);
-  --color-jewel-crimson: var(--jewel-crimson);
-  --color-jewel-ink: var(--jewel-ink);
 
-  --font-display: "Fraunces", "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Brand tokens */
+  --color-blush: var(--blush);
+  --color-plum: var(--plum);
+  --color-berry: var(--berry);
+  --color-lime: var(--lime);
+
+  /* Legacy jewel aliases (remap onto new palette so existing components stay consistent) */
+  --color-jewel-crimson: var(--berry);
+  --color-jewel-saffron: var(--blush);
+  --color-jewel-teal: var(--lime);
+  --color-jewel-ink: var(--plum);
+
+  --font-display: "Fraunces", "SF Pro Display", ui-serif, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 1.25rem;
 
-  /* Kitenge palette */
-  --jewel-crimson: oklch(0.58 0.22 27);      /* #E63946 */
-  --jewel-saffron: oklch(0.78 0.15 60);      /* #F4A261 */
-  --jewel-teal: oklch(0.62 0.11 178);        /* #2A9D8F */
-  --jewel-cream: oklch(0.98 0.02 85);        /* #FFF3E0 */
-  --jewel-ink: oklch(0.34 0.05 200);         /* #264653 */
+  /* Maelove palette */
+  --blush: oklch(0.88 0.08 350);        /* #F6C7E7 */
+  --plum: oklch(0.22 0.09 340);         /* #24001C */
+  --berry: oklch(0.36 0.17 350);        /* #6B003E */
+  --lime: oklch(0.95 0.16 118);         /* #E8FF9A */
+  --cream: oklch(0.99 0.005 340);
 
-  --background: oklch(0.985 0.015 85);
-  --foreground: var(--jewel-ink);
+  /* Legacy jewel aliases */
+  --jewel-crimson: var(--berry);
+  --jewel-saffron: var(--blush);
+  --jewel-teal: var(--lime);
+  --jewel-ink: var(--plum);
+  --jewel-cream: var(--cream);
+
+  --background: oklch(0.985 0.015 340);
+  --foreground: var(--plum);
   --card: oklch(1 0 0);
-  --card-foreground: var(--jewel-ink);
+  --card-foreground: var(--plum);
   --popover: oklch(1 0 0);
-  --popover-foreground: var(--jewel-ink);
-  --primary: var(--jewel-crimson);
-  --primary-foreground: oklch(0.99 0.005 85);
-  --secondary: var(--jewel-teal);
-  --secondary-foreground: oklch(0.99 0.005 85);
-  --muted: oklch(0.94 0.02 80);
-  --muted-foreground: oklch(0.5 0.04 200);
-  --accent: var(--jewel-saffron);
-  --accent-foreground: var(--jewel-ink);
+  --popover-foreground: var(--plum);
+  --primary: var(--berry);
+  --primary-foreground: oklch(0.99 0.005 340);
+  --secondary: var(--blush);
+  --secondary-foreground: var(--plum);
+  --muted: oklch(0.95 0.02 340);
+  --muted-foreground: oklch(0.5 0.05 340);
+  --accent: var(--lime);
+  --accent-foreground: var(--plum);
   --destructive: oklch(0.55 0.24 27);
-  --destructive-foreground: oklch(0.99 0.005 85);
-  --border: oklch(0.9 0.02 80);
-  --input: oklch(0.92 0.02 80);
-  --ring: var(--jewel-crimson);
+  --destructive-foreground: oklch(0.99 0.005 340);
+  --border: oklch(0.9 0.03 340);
+  --input: oklch(0.93 0.02 340);
+  --ring: var(--berry);
 
-  --gradient-hero: linear-gradient(135deg, var(--jewel-crimson) 0%, var(--jewel-saffron) 50%, var(--jewel-teal) 100%);
-  --gradient-warm: linear-gradient(135deg, var(--jewel-crimson), var(--jewel-saffron));
-  --gradient-cool: linear-gradient(135deg, var(--jewel-teal), var(--jewel-ink));
-  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--jewel-crimson) 40%, transparent);
-  --shadow-soft: 0 10px 40px -12px color-mix(in oklab, var(--jewel-ink) 25%, transparent);
+  --gradient-hero: linear-gradient(135deg, var(--berry) 0%, var(--blush) 55%, var(--lime) 100%);
+  --gradient-warm: linear-gradient(135deg, var(--berry), var(--blush));
+  --gradient-cool: linear-gradient(135deg, var(--plum), var(--berry));
+  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--berry) 45%, transparent);
+  --shadow-soft: 0 10px 40px -12px color-mix(in oklab, var(--plum) 22%, transparent);
 }
 
 @layer base {
@@ -89,10 +103,12 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     background-image:
-      radial-gradient(ellipse 80% 60% at 15% 0%, color-mix(in oklab, var(--jewel-crimson) 22%, transparent), transparent 60%),
-      radial-gradient(ellipse 70% 50% at 85% 10%, color-mix(in oklab, var(--jewel-saffron) 22%, transparent), transparent 60%),
-      radial-gradient(ellipse 90% 50% at 50% 100%, color-mix(in oklab, var(--jewel-teal) 20%, transparent), transparent 60%);
-    background-attachment: fixed;
+      radial-gradient(ellipse 90% 60% at 10% 0%, color-mix(in oklab, var(--blush) 55%, transparent), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 90% 15%, color-mix(in oklab, var(--lime) 30%, transparent), transparent 60%),
+      radial-gradient(ellipse 90% 55% at 50% 100%, color-mix(in oklab, var(--berry) 22%, transparent), transparent 65%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'><g fill='none' stroke='%236B003E' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' opacity='0.09'><path d='M40 60c0-6 5-10 10-10s10 4 10 10c0 8-10 16-10 16s-10-8-10-16z'/><path d='M240 40l3 8 8 1-6 6 2 9-7-5-7 5 2-9-6-6 8-1z'/><circle cx='120' cy='110' r='5'/><path d='M180 200q10-10 20 0t20 0'/><path d='M70 240q8-8 16 0'/><path d='M270 260l-20 10 4-14-10-10 14-2 6-12 6 12 14 2-10 10 4 14z' stroke-width='1'/><path d='M150 60c4 0 6 3 6 6s-2 6-6 6-6-3-6-6 2-6 6-6z'/><path d='M100 280q6-10 14-4t14-4'/><path d='M220 130l14 6-14 6-6 14-6-14-14-6 14-6 6-14z' stroke-width='1'/><circle cx='40' cy='180' r='3'/><circle cx='300' cy='120' r='3'/><circle cx='200' cy='300' r='3'/><path d='M60 130c0-4 3-7 7-7s7 3 7 7c0 6-7 11-7 11s-7-5-7-11z'/></g></svg>");
+    background-attachment: fixed, fixed, fixed, fixed;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
     min-height: 100vh;
   }
   h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
@@ -100,16 +116,23 @@
 
 @utility glass {
   background: color-mix(in oklab, white 55%, transparent);
-  backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid color-mix(in oklab, white 60%, transparent);
+  backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid color-mix(in oklab, white 65%, transparent);
   box-shadow: var(--shadow-soft);
 }
 
 @utility glass-dark {
-  background: color-mix(in oklab, var(--jewel-ink) 78%, transparent);
-  backdrop-filter: blur(24px) saturate(160%);
+  background: color-mix(in oklab, var(--plum) 82%, transparent);
+  backdrop-filter: blur(28px) saturate(170%);
   border: 1px solid color-mix(in oklab, white 12%, transparent);
-  color: oklch(0.98 0.01 85);
+  color: oklch(0.98 0.01 340);
+}
+
+@utility glass-berry {
+  background: color-mix(in oklab, var(--berry) 78%, transparent);
+  backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid color-mix(in oklab, var(--blush) 40%, transparent);
+  color: oklch(0.99 0.005 340);
 }
 
 @utility gradient-text {

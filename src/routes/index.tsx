@@ -23,7 +23,7 @@ function Landing() {
                 Fashion woven <br/>with <span className="gradient-text">Mae</span> and <span className="gradient-text">Love</span>.
               </h1>
               <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-                Discover handcrafted clothing, jewellery and accessories from independent boutiques across Kenya, Uganda, Tanzania, Rwanda and beyond — shipped worldwide.
+                A modern boutique marketplace for clothing, shoes, jewellery and accessories — for women and men — from independent designers across East Africa, shipped worldwide.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link to="/shop" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90">

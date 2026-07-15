@@ -1,12 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { CATEGORIES, formatMoney } from "@/lib/format";
+import { MobileTabBar } from "@/components/mobile-tab-bar";
+import { ProductCard, type ProductCardData } from "@/components/product-card";
+import { CATEGORIES } from "@/lib/format";
 import { z } from "zod";
-import { Search } from "lucide-react";
+import { Search, ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
+import prodBlazer from "@/assets/prod-blazer.jpg";
+import prodPendant from "@/assets/prod-pendant.jpg";
+import prodStreet from "@/assets/prod-streetset.jpg";
+import prodMandala from "@/assets/prod-mandala.jpg";
 
 const searchSchema = z.object({
   q: z.string().optional(),
@@ -18,6 +22,13 @@ export const Route = createFileRoute("/shop")({
   component: Shop,
   validateSearch: searchSchema,
 });
+
+const DEMO: ProductCardData[] = [
+  { id: "demo-3", title: "Street Colour Block Set", boutique: "GRID SUPPLY", price_cents: 13200, image: prodStreet, swatches: ["#e85d3a", "#2d5a9e", "#1a1a1a"] },
+  { id: "demo-2", title: "Gold Teardrop Pendant", boutique: "LUMIÈRE FINE", price_cents: 22000, image: prodPendant, badge: "BESTSELLER", swatches: ["#c9a84c", "#e8c07a"] },
+  { id: "demo-1", title: "Noir Satin Blazer Dress", boutique: "MAELOVE STUDIO", price_cents: 24000, sale_price_cents: 18900, image: prodBlazer, badge: "SALE", discountPct: 21, swatches: ["#1a1a2e", "#6B003E"] },
+  { id: "demo-4", title: "Silver Mandala Necklace", boutique: "LUMIÈRE FINE", price_cents: 19500, image: prodMandala, badge: "LUXURY", swatches: ["#c0c0c0"] },
+];
 
 function Shop() {
   const params = Route.useSearch();
@@ -37,62 +48,60 @@ function Shop() {
     },
   });
 
-  return (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 md:px-8 pt-10">
-        <div className="glass rounded-3xl p-6 md:p-8 mb-6">
-          <h1 className="font-display text-3xl md:text-4xl font-semibold">Discover boutique fashion</h1>
-          <form
-            onSubmit={(e) => { e.preventDefault(); navigate({ to: "/shop", search: { ...params, q: q || undefined } }); }}
-            className="mt-4 flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 border"
-          >
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products…" className="flex-1 bg-transparent text-sm outline-none" />
-          </form>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link to="/shop" search={{}} className={`rounded-full px-4 py-1.5 text-xs font-medium ${!params.category ? "bg-primary text-primary-foreground" : "glass"}`}>All</Link>
-            {CATEGORIES.map((c) => (
-              <Link key={c} to="/shop" search={{ ...params, category: c }}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium ${params.category === c ? "bg-primary text-primary-foreground" : "glass"}`}>{c}</Link>
-            ))}
-          </div>
-        </div>
+  const items: ProductCardData[] = (data && data.length > 0)
+    ? data.map((p) => ({
+        id: p.id,
+        title: p.title,
+        price_cents: p.price_cents,
+        sale_price_cents: p.sale_price_cents,
+        currency: p.currency,
+        image: p.images?.[0] ?? prodBlazer,
+        boutique: "MAELOVE",
+      }))
+    : DEMO;
 
+  return (
+    <div className="min-h-screen pb-28">
+      {/* Top bar */}
+      <div className="px-5 pt-6 flex items-center gap-3">
+        <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/70 backdrop-blur">
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
+        <h1 className="text-2xl font-black tracking-tight text-plum">Discover</h1>
+      </div>
+
+      {/* Search */}
+      <form
+        onSubmit={(e) => { e.preventDefault(); navigate({ to: "/shop", search: { ...params, q: q || undefined } }); }}
+        className="mx-5 mt-4 flex items-center gap-2 rounded-full bg-white/80 backdrop-blur px-4 py-3 border border-white"
+      >
+        <Search className="h-4 w-4 text-plum/60" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search boutiques, styles…" className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-plum/50" />
+      </form>
+
+      {/* Category chips */}
+      <div className="mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [&::-webkit-scrollbar]:hidden">
+        <Link to="/shop" search={{}} className={`shrink-0 rounded-full px-4 py-2 text-xs font-extrabold ${!params.category ? "bg-berry text-white" : "bg-white/70 text-plum"}`}>All</Link>
+        {CATEGORIES.map((c) => (
+          <Link key={c} to="/shop" search={{ ...params, category: c }}
+            className={`shrink-0 rounded-full px-4 py-2 text-xs font-extrabold ${params.category === c ? "bg-berry text-white" : "bg-white/70 text-plum"}`}>{c}</Link>
+        ))}
+      </div>
+
+      {/* Grid */}
+      <div className="px-5 mt-5">
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => <div key={i} className="glass rounded-2xl aspect-[3/4] animate-pulse" />)}
-          </div>
-        ) : !data || data.length === 0 ? (
-          <div className="glass rounded-3xl p-12 text-center">
-            <p className="font-display text-xl">No products yet.</p>
-            <p className="text-sm text-muted-foreground mt-2">Be the first — <Link to="/seller" className="text-primary underline">open a boutique</Link>.</p>
+          <div className="grid grid-cols-2 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="glass rounded-3xl aspect-[3/4] animate-pulse" />)}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {data.map((p) => (
-              <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="glass group rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform">
-                <div className="aspect-[3/4] overflow-hidden bg-muted">
-                  {p.images?.[0] ? (
-                    <img src={p.images[0]} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
-                  ) : (
-                    <div className="h-full w-full" style={{ background: "var(--gradient-warm)" }} />
-                  )}
-                </div>
-                <div className="p-3">
-                  <div className="text-xs text-muted-foreground">{p.category}</div>
-                  <div className="text-sm font-semibold truncate">{p.title}</div>
-                  <div className="mt-1 text-sm font-bold text-primary">
-                    {formatMoney(p.sale_price_cents ?? p.price_cents, p.currency)}
-                    {p.sale_price_cents && <span className="ml-2 text-xs line-through text-muted-foreground">{formatMoney(p.price_cents, p.currency)}</span>}
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="grid grid-cols-2 gap-3">
+            {items.map((p) => <ProductCard key={p.id} p={p} />)}
           </div>
         )}
       </div>
-      <SiteFooter />
+
+      <MobileTabBar />
     </div>
   );
 }

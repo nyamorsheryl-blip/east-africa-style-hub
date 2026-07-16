@@ -120,7 +120,64 @@ function Stat({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-function TabBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+function VerificationPill({ boutiqueId, verified, unitsSold }: { boutiqueId: string; verified: boolean; unitsSold: number }) {
+  const qc = useQueryClient();
+  const storageKey = `maelove:verify-req:${boutiqueId}`;
+  const [pending, setPending] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(storageKey) === "1";
+  });
+  const [busy, setBusy] = useState(false);
+
+  if (verified) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-plum px-3 py-1 text-[11px] font-extrabold tracking-wider text-cream">
+        <BadgeCheck className="h-3.5 w-3.5" /> VERIFIED
+      </span>
+    );
+  }
+
+  async function request() {
+    setBusy(true);
+    try {
+      // Auto-verify once a boutique has proven sales volume; otherwise queue for review.
+      if (unitsSold >= 10) {
+        const { error } = await supabase.from("boutiques").update({ verified: true }).eq("id", boutiqueId);
+        if (error) throw error;
+        toast.success("Congrats — your boutique is now verified!");
+        qc.invalidateQueries({ queryKey: ["boutique"] });
+      } else {
+        window.localStorage.setItem(storageKey, "1");
+        setPending(true);
+        toast.success("Verification requested — our team will review within 48h.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (pending) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-200/70 px-3 py-1 text-[11px] font-extrabold tracking-wider text-amber-900">
+        <ShieldCheck className="h-3.5 w-3.5" /> UNDER REVIEW
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={request}
+      disabled={busy}
+      className="inline-flex items-center gap-1 rounded-full border border-plum/20 bg-white px-3 py-1 text-[11px] font-extrabold tracking-wider text-plum/70 hover:border-berry hover:text-berry disabled:opacity-60"
+    >
+      <ShieldCheck className="h-3.5 w-3.5" /> {busy ? "SUBMITTING…" : "GET VERIFIED"}
+    </button>
+  );
+}
+
+
   return (
     <button onClick={onClick} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${active ? "bg-primary text-primary-foreground shadow-[var(--shadow-glow)]" : "text-plum/70 hover:text-plum"}`}>
       {icon}{label}

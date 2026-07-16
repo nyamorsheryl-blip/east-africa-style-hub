@@ -8,6 +8,7 @@ import { useCart } from "@/lib/cart";
 import { useSession } from "@/hooks/use-session";
 import { toast } from "sonner";
 import { Heart, ShoppingBag, MapPin, Truck, Sparkles } from "lucide-react";
+import { SellerBadge } from "@/components/seller-badge";
 import { useState } from "react";
 
 export const Route = createFileRoute("/product/$id")({ component: ProductPage });
@@ -71,11 +72,14 @@ function ProductPage() {
           <div>
             <div className="glass rounded-3xl p-6 md:p-8">
               {boutique && (
-                <Link to="/shop" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-                  <span className="font-semibold text-foreground">{boutique.name}</span>
-                  {boutique.verified && <Sparkles className="h-3 w-3 text-primary" />}
-                  <span>· <MapPin className="inline h-3 w-3" /> {boutique.city ?? boutique.country}</span>
-                </Link>
+                <div className="mb-4">
+                  <SellerBadge
+                    ownerId={data.owner_id}
+                    name={boutique.name}
+                    location={boutique.city ?? boutique.country}
+                    verified={boutique.verified}
+                  />
+                </div>
               )}
               <h1 className="font-display text-3xl md:text-4xl font-semibold">{data.title}</h1>
               <div className="mt-3 flex items-baseline gap-3">

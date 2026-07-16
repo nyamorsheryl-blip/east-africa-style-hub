@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useState, useRef } from "react";
 import {
   Plus, Store, Trash2, ImagePlus, Package, Sparkles, X,
-  Boxes, Receipt, RotateCcw, Percent, Pencil, Check,
+  Boxes, Receipt, RotateCcw, Percent, Pencil, Check, BadgeCheck, ShieldCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/seller")({ component: SellerDash });
@@ -39,6 +39,16 @@ function SellerDash() {
     },
   });
 
+  const { data: unitsSold } = useQuery({
+    queryKey: ["seller-units-sold", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("order_items").select("quantity").eq("seller_id", user!.id);
+      if (error) throw error;
+      return (data ?? []).reduce((s, r) => s + (r.quantity ?? 0), 0);
+    },
+  });
+
   if (loading) return <div className="min-h-screen"><SiteHeader /></div>;
   if (!user) return (
     <div className="min-h-screen"><SiteHeader />
@@ -65,15 +75,16 @@ function SellerDash() {
         {/* Header */}
         <div className="glass rounded-3xl p-6 md:p-8 mb-6 flex flex-col md:flex-row md:items-center gap-4 md:justify-between">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-display text-3xl font-semibold">{boutique.name}</h1>
-              {boutique.verified && <Sparkles className="h-5 w-5 text-primary" />}
+              <VerificationPill boutiqueId={boutique.id} verified={boutique.verified} unitsSold={unitsSold ?? 0} />
             </div>
             <p className="text-sm text-muted-foreground mt-1">{boutique.tagline || `Boutique in ${boutique.city ?? boutique.country}`}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Stat label="Products" value={products?.length ?? 0} />
             <Stat label="In stock" value={stockUnits} />
+            <Stat label="Units sold" value={unitsSold ?? 0} />
             <Stat label="On sale" value={onSale} />
           </div>
         </div>
@@ -106,6 +117,63 @@ function Stat({ label, value }: { label: string; value: number | string }) {
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="font-display text-2xl font-semibold">{value}</div>
     </div>
+  );
+}
+
+function VerificationPill({ boutiqueId, verified, unitsSold }: { boutiqueId: string; verified: boolean; unitsSold: number }) {
+  const qc = useQueryClient();
+  const storageKey = `maelove:verify-req:${boutiqueId}`;
+  const [pending, setPending] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(storageKey) === "1";
+  });
+  const [busy, setBusy] = useState(false);
+
+  if (verified) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-plum px-3 py-1 text-[11px] font-extrabold tracking-wider text-cream">
+        <BadgeCheck className="h-3.5 w-3.5" /> VERIFIED
+      </span>
+    );
+  }
+
+  async function request() {
+    setBusy(true);
+    try {
+      // Auto-verify once a boutique has proven sales volume; otherwise queue for review.
+      if (unitsSold >= 10) {
+        const { error } = await supabase.from("boutiques").update({ verified: true }).eq("id", boutiqueId);
+        if (error) throw error;
+        toast.success("Congrats — your boutique is now verified!");
+        qc.invalidateQueries({ queryKey: ["boutique"] });
+      } else {
+        window.localStorage.setItem(storageKey, "1");
+        setPending(true);
+        toast.success("Verification requested — our team will review within 48h.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (pending) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-200/70 px-3 py-1 text-[11px] font-extrabold tracking-wider text-amber-900">
+        <ShieldCheck className="h-3.5 w-3.5" /> UNDER REVIEW
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={request}
+      disabled={busy}
+      className="inline-flex items-center gap-1 rounded-full border border-plum/20 bg-white px-3 py-1 text-[11px] font-extrabold tracking-wider text-plum/70 hover:border-berry hover:text-berry disabled:opacity-60"
+    >
+      <ShieldCheck className="h-3.5 w-3.5" /> {busy ? "SUBMITTING…" : "GET VERIFIED"}
+    </button>
   );
 }
 

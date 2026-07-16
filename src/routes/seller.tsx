@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useState, useRef } from "react";
 import {
   Plus, Store, Trash2, ImagePlus, Package, Sparkles, X,
-  Boxes, Receipt, RotateCcw, Percent, Pencil, Check,
+  Boxes, Receipt, RotateCcw, Percent, Pencil, Check, BadgeCheck, ShieldCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/seller")({ component: SellerDash });
@@ -39,6 +39,16 @@ function SellerDash() {
     },
   });
 
+  const { data: unitsSold } = useQuery({
+    queryKey: ["seller-units-sold", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("order_items").select("quantity").eq("seller_id", user!.id);
+      if (error) throw error;
+      return (data ?? []).reduce((s, r) => s + (r.quantity ?? 0), 0);
+    },
+  });
+
   if (loading) return <div className="min-h-screen"><SiteHeader /></div>;
   if (!user) return (
     <div className="min-h-screen"><SiteHeader />
@@ -65,15 +75,16 @@ function SellerDash() {
         {/* Header */}
         <div className="glass rounded-3xl p-6 md:p-8 mb-6 flex flex-col md:flex-row md:items-center gap-4 md:justify-between">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-display text-3xl font-semibold">{boutique.name}</h1>
-              {boutique.verified && <Sparkles className="h-5 w-5 text-primary" />}
+              <VerificationPill boutiqueId={boutique.id} verified={boutique.verified} unitsSold={unitsSold ?? 0} />
             </div>
             <p className="text-sm text-muted-foreground mt-1">{boutique.tagline || `Boutique in ${boutique.city ?? boutique.country}`}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Stat label="Products" value={products?.length ?? 0} />
             <Stat label="In stock" value={stockUnits} />
+            <Stat label="Units sold" value={unitsSold ?? 0} />
             <Stat label="On sale" value={onSale} />
           </div>
         </div>

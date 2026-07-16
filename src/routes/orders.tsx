@@ -55,12 +55,8 @@ function Orders() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  {(o.order_items as { id: string; title: string; quantity: number; unit_price_cents: number; image_url: string | null }[]).map((it) => (
-                    <div key={it.id} className="flex items-center gap-3 text-sm">
-                      <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden">{it.image_url && <img src={it.image_url} alt="" className="h-full w-full object-cover" />}</div>
-                      <div className="flex-1">{it.title} × {it.quantity}</div>
-                      <div className="text-muted-foreground">{formatMoney(it.unit_price_cents * it.quantity)}</div>
-                    </div>
+                  {(o.order_items as { id: string; product_id: string; seller_id: string; title: string; quantity: number; unit_price_cents: number; image_url: string | null }[]).map((it) => (
+                    <OrderItemRow key={it.id} it={it} orderId={o.id} buyerId={user.id} />
                   ))}
                 </div>
               </div>
@@ -71,3 +67,52 @@ function Orders() {
     </div>
   );
 }
+
+function OrderItemRow({ it, orderId, buyerId }: {
+  it: { id: string; product_id: string; seller_id: string; title: string; quantity: number; unit_price_cents: number; image_url: string | null };
+  orderId: string;
+  buyerId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [requested, setRequested] = useState(false);
+
+  async function submit() {
+    if (!reason.trim()) { toast.error("Add a reason"); return; }
+    setSaving(true);
+    const { error } = await supabase.from("returns").insert({
+      order_item_id: it.id, order_id: orderId, buyer_id: buyerId,
+      seller_id: it.seller_id, reason, status: "requested",
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Return requested");
+    setRequested(true); setOpen(false);
+  }
+
+  return (
+    <div className="text-sm">
+      <div className="flex items-center gap-3">
+        <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden">{it.image_url && <img src={it.image_url} alt="" className="h-full w-full object-cover" />}</div>
+        <div className="flex-1">{it.title} × {it.quantity}</div>
+        <div className="text-muted-foreground">{formatMoney(it.unit_price_cents * it.quantity)}</div>
+        {!requested && (
+          <button onClick={() => setOpen((v) => !v)} className="text-xs font-semibold text-primary hover:underline">
+            {open ? "Cancel" : "Return"}
+          </button>
+        )}
+        {requested && <span className="text-xs text-muted-foreground">Requested</span>}
+      </div>
+      {open && (
+        <div className="mt-2 flex gap-2">
+          <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason for return" className="flex-1 rounded-xl border border-input bg-white/80 px-3 py-2 text-xs" />
+          <button onClick={submit} disabled={saving} className="rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground disabled:opacity-60">
+            {saving ? "…" : "Send"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+

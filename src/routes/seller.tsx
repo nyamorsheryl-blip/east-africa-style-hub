@@ -57,7 +57,7 @@ function SellerDash() {
           <Store className="mx-auto h-8 w-8 text-primary" />
           <p className="mt-3 font-display text-xl">Open your boutique</p>
           <p className="text-sm text-muted-foreground mt-1">Sign in or create an account to get started.</p>
-          <Link to="/auth" search={{ mode: "sell" }} className="mt-4 inline-flex rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground">Get started</Link>
+          <Link to="/auth/signup" search={{ intent: "sell" }} className="mt-4 inline-flex rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground">Get started</Link>
         </div>
       </div>
     </div>

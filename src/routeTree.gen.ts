@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
+import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 
@@ -78,6 +79,11 @@ const AuthSignupRoute = AuthSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/reset': typeof AuthResetRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$id': typeof ProductIdRoute
   '/auth/': typeof AuthIndexRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/reset': typeof AuthResetRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$id': typeof ProductIdRoute
   '/auth': typeof AuthIndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/reset': typeof AuthResetRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$id': typeof ProductIdRoute
   '/auth/': typeof AuthIndexRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/auth/forgot'
     | '/auth/login'
+    | '/auth/reset'
     | '/auth/signup'
     | '/product/$id'
     | '/auth/'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/auth/forgot'
     | '/auth/login'
+    | '/auth/reset'
     | '/auth/signup'
     | '/product/$id'
     | '/auth'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/auth/forgot'
     | '/auth/login'
+    | '/auth/reset'
     | '/auth/signup'
     | '/product/$id'
     | '/auth/'
@@ -272,6 +284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignupRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/auth/reset': {
+      id: '/auth/reset'
+      path: '/reset'
+      fullPath: '/auth/reset'
+      preLoaderRoute: typeof AuthResetRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/login'
@@ -292,6 +311,7 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthForgotRoute: typeof AuthForgotRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthResetRoute: typeof AuthResetRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
@@ -299,6 +319,7 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthForgotRoute: AuthForgotRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthResetRoute: AuthResetRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthIndexRoute: AuthIndexRoute,
 }

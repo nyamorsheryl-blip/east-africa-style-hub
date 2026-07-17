@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -76,6 +77,11 @@ const AuthSignupRoute = AuthSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
+  '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$id': typeof ProductIdRoute
   '/auth/': typeof AuthIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
+  '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$id': typeof ProductIdRoute
   '/auth': typeof AuthIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
+  '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$id': typeof ProductIdRoute
   '/auth/': typeof AuthIndexRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/shop'
     | '/wishlist'
+    | '/auth/login'
     | '/auth/signup'
     | '/product/$id'
     | '/auth/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/shop'
     | '/wishlist'
+    | '/auth/login'
     | '/auth/signup'
     | '/product/$id'
     | '/auth'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/shop'
     | '/wishlist'
+    | '/auth/login'
     | '/auth/signup'
     | '/product/$id'
     | '/auth/'
@@ -248,15 +260,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignupRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
 interface AuthRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthIndexRoute: AuthIndexRoute,
 }

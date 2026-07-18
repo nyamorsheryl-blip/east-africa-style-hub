@@ -62,6 +62,33 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          emoji: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           id: string
@@ -215,6 +242,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          role: string
           updated_at: string
           username: string | null
         }
@@ -224,6 +252,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          role?: string
           updated_at?: string
           username?: string | null
         }
@@ -233,6 +262,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          role?: string
           updated_at?: string
           username?: string | null
         }

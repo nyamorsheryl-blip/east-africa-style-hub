@@ -495,7 +495,7 @@ function CreateBoutique({ userId, onCreated }: { userId: string; onCreated: () =
       const slug = slugify(name) + "-" + Math.random().toString(36).slice(2, 6);
       const { error } = await supabase.from("boutiques").insert({ owner_id: userId, name, tagline, country, city, slug });
       if (error) throw error;
-      await supabase.from("user_roles").upsert({ user_id: userId, role: "seller" }, { onConflict: "user_id,role" });
+      await supabase.from("profiles").update({ role: "seller" }).eq("id", userId).in("role", ["shopper"]);
       toast.success("Boutique created!");
       onCreated();
       navigate({ to: "/seller" });

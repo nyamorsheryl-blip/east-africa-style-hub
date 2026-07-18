@@ -8,10 +8,10 @@ export const Route = createFileRoute("/auth/onboarding")({
   component: OnboardingPage,
 });
 
-type Choice = "buyer" | "seller" | "both";
+type Choice = "shopper" | "seller" | "both";
 
 const OPTIONS: { id: Choice; emoji: string; icon: React.ComponentType<{ className?: string }>; title: string; body: string; grad: string }[] = [
-  { id: "buyer",  emoji: "🛍️", icon: ShoppingBag, title: "Shop",             body: "Discover boutique fashion, jewellery and one-of-a-kind pieces.", grad: "linear-gradient(135deg, var(--blush), var(--berry))" },
+  { id: "shopper",  emoji: "🛍️", icon: ShoppingBag, title: "Shop",             body: "Discover boutique fashion, jewellery and one-of-a-kind pieces.", grad: "linear-gradient(135deg, var(--blush), var(--berry))" },
   { id: "seller", emoji: "🏪", icon: Store,       title: "Open a boutique",  body: "List products, manage orders, get paid.",                          grad: "linear-gradient(135deg, var(--plum), var(--berry))" },
   { id: "both",   emoji: "✨", icon: Sparkles,    title: "Both",             body: "Shop what you love and sell what you make.",                       grad: "linear-gradient(135deg, var(--berry), var(--lime))" },
 ];

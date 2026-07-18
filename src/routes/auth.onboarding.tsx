@@ -30,40 +30,37 @@ function OnboardingPage() {
     });
     const intent = sessionStorage.getItem("maelove:intent");
     if (intent === "sell") setChoice("seller");
-    else if (intent === "shop") setChoice("buyer");
+    else if (intent === "shop") setChoice("shopper");
   }, [navigate]);
 
   async function save() {
     if (!choice || !userId) return;
     setSaving(true);
     try {
-      // Remove default 'buyer' role added by trigger if user picked something else
-      await supabase.from("user_roles").delete().eq("user_id", userId);
+      const { error: roleErr } = await supabase
+        .from("profiles")
+        .update({ role: choice })
+        .eq("id", userId);
+      if (roleErr) throw roleErr;
 
-      const rows =
-        choice === "both"
-          ? [{ user_id: userId, role: "buyer" as const }, { user_id: userId, role: "seller" as const }]
-          : [{ user_id: userId, role: choice }];
-      const { error } = await supabase.from("user_roles").insert(rows);
-      if (error) throw error;
-
-      // Create boutique shell if seller
+      // Create boutique shell if seller or both
       if (choice === "seller" || choice === "both") {
         const { data: existing } = await supabase.from("boutiques").select("id").eq("owner_id", userId).maybeSingle();
         if (!existing) {
           const { data: prof } = await supabase.from("profiles").select("full_name, username").eq("id", userId).maybeSingle();
-          await supabase.from("boutiques").insert({
+          const { error: bErr } = await supabase.from("boutiques").insert({
             owner_id: userId,
             name: prof?.full_name ? `${prof.full_name}'s boutique` : `@${prof?.username ?? "boutique"}`,
             slug: `${prof?.username ?? userId.slice(0, 8)}-${Date.now().toString(36)}`,
           });
+          if (bErr) throw bErr;
         }
       }
 
       sessionStorage.removeItem("maelove:intent");
       setSuccess(true);
       setTimeout(() => {
-        navigate({ to: choice === "seller" ? "/seller" : "/" });
+        navigate({ to: choice === "shopper" ? "/" : "/seller" });
       }, 1200);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save your choice");

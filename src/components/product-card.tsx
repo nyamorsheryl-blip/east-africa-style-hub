@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Heart } from "lucide-react";
 import { formatMoney } from "@/lib/format";
+import { useWishlist } from "@/lib/wishlist-hook";
 
 export type ProductCardData = {
   id: string;
@@ -17,6 +18,8 @@ export type ProductCardData = {
 
 export function ProductCard({ p }: { p: ProductCardData }) {
   const price = p.sale_price_cents ?? p.price_cents;
+  const { isSaved, toggle } = useWishlist();
+  const saved = isSaved(p.id);
   const badgeStyle =
     p.badge === "LUXURY"
       ? "bg-plum text-lime"
@@ -38,10 +41,12 @@ export function ProductCard({ p }: { p: ProductCardData }) {
           </span>
         )}
         <button
-          aria-label="Save"
-          className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 backdrop-blur-md text-plum hover:bg-white"
+          type="button"
+          aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(p.id); }}
+          className={`absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-colors ${saved ? "bg-berry text-white" : "bg-white/85 text-plum hover:bg-white"}`}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className="h-4 w-4" fill={saved ? "currentColor" : "none"} />
         </button>
       </Link>
       <div className="p-3 flex-1 flex flex-col gap-2">
@@ -68,9 +73,6 @@ export function ProductCard({ p }: { p: ProductCardData }) {
           <div className="font-extrabold text-plum text-base">
             {formatMoney(price, p.currency ?? "USD")}
           </div>
-          <button className="rounded-full bg-berry px-4 py-2 text-xs font-extrabold text-white hover:opacity-90">
-            + Add
-          </button>
         </div>
       </div>
     </div>

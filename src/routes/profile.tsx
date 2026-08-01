@@ -1,164 +1,194 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
+import {
+  Package, Heart, Wallet, MessageCircle, Settings, MapPin, Trophy,
+  Store, Truck, ChevronRight, LogOut, Pencil, ShieldCheck, Star,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
-import { MobileTabBar } from "@/components/mobile-tab-bar";
-import { Sparkles, LogOut, Pencil, Check, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { BottomNav } from "@/components/ml/bottom-nav";
+import { Section } from "@/components/ml/section";
+import { Skeleton } from "@/components/ml/states";
 
-export const Route = createFileRoute("/profile")({ component: Profile });
+export const Route = createFileRoute("/profile")({
+  head: () => ({
+    meta: [
+      { title: "Your Profile — MaeLove" },
+      { name: "description", content: "Manage your MaeLove orders, wishlist, wallet, addresses, achievements and seller tools in one place." },
+      { property: "og:title", content: "Your Profile — MaeLove" },
+      { property: "og:description", content: "Orders, wishlist, wallet, addresses and seller tools." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Profile,
+});
+
+const LINKS = [
+  { label: "Orders", icon: Package, to: "/orders" },
+  { label: "Wishlist", icon: Heart, to: "/wishlist" },
+  { label: "Messages", icon: MessageCircle, to: "/messages" },
+  { label: "Seller Dashboard", icon: Store, to: "/sell" },
+] as const;
+
+const ROWS = [
+  { label: "Wallet & payments", icon: Wallet, hint: "$0.00 balance" },
+  { label: "Addresses", icon: MapPin, hint: "2 saved" },
+  { label: "Achievements", icon: Trophy, hint: "3 badges" },
+  { label: "Become a delivery partner", icon: Truck, hint: "Coming soon" },
+  { label: "Settings", icon: Settings, hint: "" },
+] as const;
 
 function Profile() {
-  const { user, loading } = useSession();
-  const navigate = useNavigate();
+  const { user } = useSession();
+  const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ full_name: "", username: "", country: "", avatar_url: "" });
-  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ full_name: "", username: "", country: "" });
 
-  const { data: profile, refetch } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, full_name, username, country, avatar_url")
-        .eq("id", user!.id)
-        .maybeSingle();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       if (error) throw error;
       return data;
     },
   });
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        full_name: profile.full_name ?? "",
-        username: profile.username ?? "",
-        country: profile.country ?? "",
-        avatar_url: profile.avatar_url ?? "",
-      });
-    }
-  }, [profile]);
-
-  async function saveProfile() {
+  async function save() {
     if (!user) return;
-    setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        full_name: form.full_name.trim() || null,
-        username: form.username.trim() || null,
-        country: form.country.trim() || null,
-        avatar_url: form.avatar_url.trim() || null,
-      })
-      .eq("id", user.id);
-    setSaving(false);
+    const { error } = await supabase.from("profiles").update(form).eq("id", user.id);
     if (error) return toast.error(error.message);
     toast.success("Profile updated");
     setEditing(false);
-    refetch();
+    qc.invalidateQueries({ queryKey: ["profile", user.id] });
   }
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    navigate({ to: "/" });
-  }
-
-  if (loading) return <div className="min-h-screen pb-28" />;
-
-  if (!user) {
-    return (
-      <div className="min-h-screen pb-28 px-5 pt-16">
-        <div className="glass rounded-3xl p-8 text-center">
-          <h1 className="text-2xl font-black text-plum">Welcome to MaeLove</h1>
-          <p className="mt-2 text-sm text-plum/70">Sign in to see your profile and orders.</p>
-          <Link to="/auth" className="mt-6 inline-flex rounded-full bg-berry px-6 py-3 text-sm font-extrabold text-white">
-            Sign in
-          </Link>
-        </div>
-        <MobileTabBar />
-      </div>
-    );
-  }
-
-  const name = profile?.full_name || user.email?.split("@")[0] || "Member";
-  const initials = name.slice(0, 2).toUpperCase();
+  const name = (profile?.full_name as string) || user?.email?.split("@")[0] || "Guest";
+  const initial = name.charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen pb-28">
-      <div className="px-5 pt-8 flex items-center gap-4">
-        <div className="relative">
-          <div className="h-24 w-24 rounded-full ring-4 ring-white bg-gradient-to-br from-blush to-berry flex items-center justify-center text-white text-2xl font-black overflow-hidden">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-            ) : initials}
+    <div className="min-h-screen pb-32">
+      <header className="rise px-5 pt-8">
+        <div className="relative overflow-hidden rounded-[2rem] p-6 text-white shadow-[var(--shadow-glow)]" style={{ background: "var(--gradient-hero)" }}>
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/25 text-2xl font-black backdrop-blur-md">
+              {initial}
+            </div>
+            <div className="min-w-0 flex-1">
+              {isLoading && user ? (
+                <Skeleton className="h-6 w-36 bg-white/30" />
+              ) : (
+                <div className="truncate text-2xl font-black tracking-tight">{name}</div>
+              )}
+              <div className="truncate text-[12px] text-white/85">
+                {user ? `@${(profile?.username as string) ?? "maelove"}` : "Sign in to unlock your MaeLove"}
+              </div>
+            </div>
+            {user && (
+              <button onClick={() => { setForm({ full_name: (profile?.full_name as string) ?? "", username: (profile?.username as string) ?? "", country: (profile?.country as string) ?? "" }); setEditing((e) => !e); }} aria-label="Edit profile" className="press flex h-10 w-10 items-center justify-center rounded-full bg-white/25 backdrop-blur-md">
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full bg-lime ring-2 ring-white" />
+
+          <div className="mt-6 grid grid-cols-3 gap-2 text-center">
+            {[["Orders", "12"], ["Saved", "38"], ["Points", "1,240"]].map(([l, v]) => (
+              <div key={l} className="rounded-2xl bg-white/20 py-3 backdrop-blur-md">
+                <div className="text-lg font-black">{v}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-white/85">{l}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-black text-plum truncate">{name}</h1>
-          {profile?.username && <p className="text-sm text-plum/60 truncate">@{profile.username}</p>}
-          <p className="text-xs text-plum/50 truncate">{user.email}</p>
-          <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-berry/15 px-3 py-1 text-[10px] font-extrabold text-berry tracking-widest">
-            MAELOVE MEMBER <Sparkles className="h-3 w-3" />
-          </span>
+      </header>
+
+      {!user && (
+        <div className="mt-5 px-5">
+          <Link to="/auth" className="press glass-cherry flex items-center justify-between rounded-3xl px-6 py-4 text-sm font-extrabold">
+            Sign in or create an account <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
-        <button
-          onClick={() => setEditing((v) => !v)}
-          className="glass rounded-full h-10 w-10 flex items-center justify-center text-plum"
-          aria-label="Edit profile"
-        >
-          {editing ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
-        </button>
-      </div>
+      )}
 
       {editing && (
-        <div className="mx-5 mt-6 glass rounded-3xl p-5 space-y-3">
-          <Field label="Full name">
-            <input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="w-full bg-transparent outline-none text-sm font-semibold text-plum" placeholder="Your name" />
-          </Field>
-          <Field label="Username">
-            <input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })} className="w-full bg-transparent outline-none text-sm font-semibold text-plum" placeholder="username" />
-          </Field>
-          <Field label="Country">
-            <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="w-full bg-transparent outline-none text-sm font-semibold text-plum" placeholder="Kenya" />
-          </Field>
-          <Field label="Avatar URL">
-            <input value={form.avatar_url} onChange={(e) => setForm({ ...form, avatar_url: e.target.value })} className="w-full bg-transparent outline-none text-sm font-semibold text-plum" placeholder="https://…" />
-          </Field>
+        <div className="rise mt-5 px-5">
+          <div className="glass space-y-3 rounded-3xl p-5">
+            {(["full_name", "username", "country"] as const).map((k) => (
+              <div key={k}>
+                <label htmlFor={k} className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                  {k.replace("_", " ")}
+                </label>
+                <input
+                  id={k}
+                  value={form[k]}
+                  onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
+                  className="mt-1.5 w-full rounded-2xl bg-card px-4 py-3 text-sm outline-none ring-1 ring-border focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            ))}
+            <div className="flex gap-3 pt-1">
+              <button onClick={() => setEditing(false)} className="press glass flex-1 rounded-full py-3 text-sm font-bold">Cancel</button>
+              <button onClick={save} className="press glass-cherry flex-1 rounded-full py-3 text-sm font-extrabold">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Section title="Quick access">
+        <div className="grid grid-cols-2 gap-3 px-5">
+          {LINKS.map(({ label, icon: Icon, to }) => (
+            <Link key={label} to={to} className="press glass flex items-center gap-3 rounded-3xl p-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full glass-blush"><Icon className="h-4 w-4" /></span>
+              <span className="text-[13px] font-bold leading-tight">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Your account">
+        <div className="glass mx-5 divide-y divide-border overflow-hidden rounded-3xl">
+          {ROWS.map(({ label, icon: Icon, hint }) => (
+            <button key={label} className="press flex w-full items-center gap-3 px-5 py-4 text-left">
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <span className="flex-1 text-[13px] font-bold">{label}</span>
+              {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Achievements" subtitle="Earn badges as you shop and sell">
+        <div className="no-scrollbar flex gap-3 overflow-x-auto px-5">
+          {[
+            { icon: ShieldCheck, label: "Verified buyer" },
+            { icon: Star, label: "Top reviewer" },
+            { icon: Trophy, label: "Early adopter" },
+            { icon: Heart, label: "Trendsetter" },
+          ].map(({ icon: Icon, label }) => (
+            <div key={label} className="glass flex w-[124px] shrink-0 flex-col items-center gap-2 rounded-3xl p-4 text-center">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full glass-blush"><Icon className="h-5 w-5" /></span>
+              <span className="text-[11px] font-bold leading-tight">{label}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {user && (
+        <div className="mt-12 px-5">
           <button
-            onClick={saveProfile}
-            disabled={saving}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-berry px-5 py-3 text-sm font-extrabold text-white disabled:opacity-60"
+            onClick={async () => { await supabase.auth.signOut(); toast.success("Signed out"); }}
+            className="press glass flex w-full items-center justify-center gap-2 rounded-full py-4 text-sm font-bold text-primary"
           >
-            <Check className="h-4 w-4" /> {saving ? "Saving…" : "Save changes"}
+            <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
       )}
 
-      <div className="px-5 mt-6 space-y-2">
-        <Link to="/orders" className="glass rounded-2xl px-5 py-4 flex items-center gap-3 text-sm font-extrabold text-plum">
-          My orders
-        </Link>
-        <Link to="/wishlist" className="glass rounded-2xl px-5 py-4 flex items-center gap-3 text-sm font-extrabold text-plum">
-          Saved items
-        </Link>
-        <button onClick={signOut} className="w-full glass rounded-2xl px-5 py-4 flex items-center gap-3 text-sm font-extrabold text-plum">
-          <LogOut className="h-4 w-4 text-berry" /> Sign out
-        </button>
-      </div>
-
-      <MobileTabBar />
+      <BottomNav />
     </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block rounded-2xl bg-white/60 px-4 py-2.5 border border-white">
-      <div className="text-[10px] font-extrabold tracking-widest text-plum/60 uppercase">{label}</div>
-      {children}
-    </label>
   );
 }

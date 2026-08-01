@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as SellRouteImport } from './routes/sell'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -41,6 +42,11 @@ const ShopRoute = ShopRouteImport.update({
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellRoute = SellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
+  '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
+  '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
+  '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/orders'
     | '/profile'
+    | '/sell'
     | '/seller'
     | '/shop'
     | '/wishlist'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/orders'
     | '/profile'
+    | '/sell'
     | '/seller'
     | '/shop'
     | '/wishlist'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/orders'
     | '/profile'
+    | '/sell'
     | '/seller'
     | '/shop'
     | '/wishlist'
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRoute
+  SellRoute: typeof SellRoute
   SellerRoute: typeof SellerRoute
   ShopRoute: typeof ShopRoute
   WishlistRoute: typeof WishlistRoute
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sell': {
+      id: '/sell'
+      path: '/sell'
+      fullPath: '/sell'
+      preLoaderRoute: typeof SellRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -416,6 +436,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRoute,
+  SellRoute: SellRoute,
   SellerRoute: SellerRoute,
   ShopRoute: ShopRoute,
   WishlistRoute: WishlistRoute,

@@ -5,17 +5,17 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * MaeLove design system — Blush, Plum, Berry & Lime liquid glass.
- * Typography: Montserrat everywhere.
+ * MaeLove design system — Vanilla, Baby Pink, Cherry Red, Yellow.
+ * Luxury / minimal / glass. Typography: Montserrat.
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 6px);
-  --radius-2xl: calc(var(--radius) + 12px);
-  --radius-3xl: calc(var(--radius) + 20px);
+  --radius-2xl: calc(var(--radius) + 14px);
+  --radius-3xl: calc(var(--radius) + 22px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -37,72 +37,103 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-vanilla: var(--vanilla);
   --color-blush: var(--blush);
-  --color-plum: var(--plum);
-  --color-berry: var(--berry);
-  --color-lime: var(--lime);
-  --color-cream: var(--cream);
+  --color-cherry: var(--cherry);
+  --color-sun: var(--sun);
+  --color-ink: var(--ink);
 
-  --color-jewel-crimson: var(--berry);
-  --color-jewel-saffron: var(--blush);
-  --color-jewel-teal: var(--lime);
-  --color-jewel-ink: var(--plum);
+  /* legacy aliases so older screens keep compiling */
+  --color-plum: var(--ink);
+  --color-berry: var(--cherry);
+  --color-lime: var(--sun);
+  --color-cream: var(--vanilla);
+  --color-jewel-crimson: var(--cherry);
+  --color-jewel-saffron: var(--sun);
+  --color-jewel-teal: var(--blush);
+  --color-jewel-ink: var(--ink);
 
   --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 1.25rem;
+  --radius: 1.5rem;
 
-  --blush: oklch(0.9 0.07 350);
-  --plum: oklch(0.22 0.09 340);
-  --berry: oklch(0.36 0.17 350);
-  --lime: oklch(0.95 0.16 118);
-  --cream: oklch(0.99 0.005 340);
+  --vanilla: oklch(0.965 0.033 96);   /* #F8F4E8 */
+  --blush: oklch(0.79 0.14 348);      /* #FFABD7 */
+  --cherry: oklch(0.51 0.22 21);      /* #D2042D */
+  --sun: oklch(0.96 0.22 108);        /* #FDF400 */
+  --ink: oklch(0.21 0.012 40);
+  --cream: var(--vanilla);
+  --plum: var(--ink);
+  --berry: var(--cherry);
+  --lime: var(--sun);
 
-  --jewel-crimson: var(--berry);
-  --jewel-saffron: var(--blush);
-  --jewel-teal: var(--lime);
-  --jewel-ink: var(--plum);
-  --jewel-cream: var(--cream);
-
-  --background: oklch(0.955 0.035 350);
-  --foreground: var(--plum);
+  --background: var(--vanilla);
+  --foreground: var(--ink);
   --card: oklch(1 0 0);
-  --card-foreground: var(--plum);
+  --card-foreground: var(--ink);
   --popover: oklch(1 0 0);
-  --popover-foreground: var(--plum);
-  --primary: var(--berry);
-  --primary-foreground: oklch(0.99 0.005 340);
+  --popover-foreground: var(--ink);
+  --primary: var(--cherry);
+  --primary-foreground: oklch(0.995 0.003 96);
   --secondary: var(--blush);
-  --secondary-foreground: var(--plum);
-  --muted: oklch(0.95 0.02 340);
-  --muted-foreground: oklch(0.5 0.05 340);
-  --accent: var(--lime);
-  --accent-foreground: var(--plum);
-  --destructive: oklch(0.55 0.24 27);
-  --destructive-foreground: oklch(0.99 0.005 340);
-  --border: oklch(0.9 0.03 340);
-  --input: oklch(0.93 0.02 340);
-  --ring: var(--berry);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.94 0.018 92);
+  --muted-foreground: oklch(0.52 0.02 60);
+  --accent: var(--blush);
+  --accent-foreground: var(--ink);
+  --destructive: var(--cherry);
+  --destructive-foreground: oklch(0.99 0.005 96);
+  --border: oklch(0.9 0.02 90);
+  --input: oklch(0.93 0.015 90);
+  --ring: var(--cherry);
 
-  --gradient-hero: linear-gradient(135deg, var(--berry) 0%, var(--blush) 55%, var(--lime) 100%);
-  --gradient-warm: linear-gradient(135deg, var(--berry), var(--blush));
-  --gradient-cool: linear-gradient(135deg, var(--plum), var(--berry));
-  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--berry) 45%, transparent);
-  --shadow-soft: 0 10px 40px -12px color-mix(in oklab, var(--plum) 22%, transparent);
+  --gradient-hero: linear-gradient(140deg, var(--cherry) 0%, var(--blush) 62%, var(--sun) 130%);
+  --gradient-blush: linear-gradient(140deg, var(--blush) 0%, var(--vanilla) 100%);
+  --gradient-sun: linear-gradient(120deg, var(--sun) 0%, var(--blush) 100%);
+  --shadow-glow: 0 24px 60px -24px color-mix(in oklab, var(--cherry) 42%, transparent);
+  --shadow-soft: 0 14px 44px -18px color-mix(in oklab, var(--ink) 22%, transparent);
+  --shadow-card: 0 2px 10px -4px color-mix(in oklab, var(--ink) 14%, transparent);
+}
+
+.dark {
+  --vanilla: oklch(0.22 0.012 80);
+  --ink: oklch(0.97 0.01 96);
+  --background: oklch(0.17 0.01 60);
+  --foreground: oklch(0.97 0.01 96);
+  --card: oklch(0.23 0.012 60);
+  --card-foreground: oklch(0.97 0.01 96);
+  --popover: oklch(0.23 0.012 60);
+  --popover-foreground: oklch(0.97 0.01 96);
+  --primary: oklch(0.62 0.21 21);
+  --primary-foreground: oklch(0.99 0.005 96);
+  --secondary: oklch(0.42 0.1 348);
+  --secondary-foreground: oklch(0.97 0.01 96);
+  --muted: oklch(0.27 0.012 60);
+  --muted-foreground: oklch(0.72 0.02 80);
+  --accent: oklch(0.45 0.11 348);
+  --accent-foreground: oklch(0.97 0.01 96);
+  --border: oklch(0.32 0.012 60);
+  --input: oklch(0.3 0.012 60);
+  --shadow-soft: 0 14px 44px -18px oklch(0 0 0 / 0.6);
+  --shadow-card: 0 2px 12px -4px oklch(0 0 0 / 0.55);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     background-image:
-      radial-gradient(ellipse 100% 60% at 50% 0%, color-mix(in oklab, var(--blush) 70%, transparent), transparent 60%),
-      radial-gradient(ellipse 80% 50% at 100% 100%, color-mix(in oklab, var(--lime) 25%, transparent), transparent 60%);
+      radial-gradient(ellipse 90% 45% at 12% 0%, color-mix(in oklab, var(--blush) 42%, transparent), transparent 62%),
+      radial-gradient(ellipse 70% 40% at 100% 8%, color-mix(in oklab, var(--sun) 22%, transparent), transparent 60%);
     background-attachment: fixed, fixed;
     background-repeat: no-repeat, no-repeat;
     min-height: 100vh;
@@ -110,37 +141,60 @@
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     font-weight: 800;
   }
+  ::-webkit-scrollbar { height: 0; width: 0; }
 }
 
 @utility glass {
-  background: color-mix(in oklab, white 55%, transparent);
-  backdrop-filter: blur(28px) saturate(170%);
-  border: 1px solid color-mix(in oklab, white 65%, transparent);
+  background: color-mix(in oklab, var(--card) 62%, transparent);
+  backdrop-filter: blur(26px) saturate(180%);
+  border: 1px solid color-mix(in oklab, white 55%, transparent);
+  box-shadow: var(--shadow-card);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklab, var(--card) 82%, transparent);
+  backdrop-filter: blur(34px) saturate(190%);
+  border: 1px solid color-mix(in oklab, white 62%, transparent);
   box-shadow: var(--shadow-soft);
+}
+
+@utility glass-cherry {
+  background: color-mix(in oklab, var(--cherry) 82%, transparent);
+  backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid color-mix(in oklab, white 28%, transparent);
+  color: oklch(0.99 0.005 96);
+  box-shadow: var(--shadow-glow);
+}
+
+@utility glass-blush {
+  background: color-mix(in oklab, var(--blush) 55%, transparent);
+  backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid color-mix(in oklab, white 55%, transparent);
+  color: var(--ink);
 }
 
 @utility glass-dark {
-  background: color-mix(in oklab, var(--plum) 82%, transparent);
-  backdrop-filter: blur(28px) saturate(170%);
+  background: color-mix(in oklab, var(--ink) 78%, transparent);
+  backdrop-filter: blur(26px) saturate(170%);
   border: 1px solid color-mix(in oklab, white 12%, transparent);
-  color: oklch(0.98 0.01 340);
+  color: oklch(0.98 0.01 96);
 }
 
+/* legacy alias used by older screens */
 @utility glass-berry {
-  background: color-mix(in oklab, var(--berry) 78%, transparent);
-  backdrop-filter: blur(28px) saturate(170%);
-  border: 1px solid color-mix(in oklab, var(--blush) 40%, transparent);
-  color: oklch(0.99 0.005 340);
+  background: color-mix(in oklab, var(--cherry) 80%, transparent);
+  backdrop-filter: blur(26px) saturate(170%);
+  border: 1px solid color-mix(in oklab, white 25%, transparent);
+  color: oklch(0.99 0.005 96);
 }
 
 @utility glass-pink {
-  background: color-mix(in oklab, var(--blush) 75%, white 15%);
-  backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid color-mix(in oklab, white 60%, transparent);
-  box-shadow: var(--shadow-soft);
+  background: color-mix(in oklab, var(--blush) 55%, transparent);
+  backdrop-filter: blur(24px) saturate(165%);
+  border: 1px solid color-mix(in oklab, white 55%, transparent);
 }
 
 @utility gradient-text {
@@ -148,4 +202,47 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+@utility press {
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, background-color 0.22s ease;
+}
+
+.press:active { transform: scale(0.965); }
+
+@keyframes ml-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ml-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@utility rise {
+  animation: ml-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, white 45%, transparent), transparent);
+  animation: ml-shimmer 1.6s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

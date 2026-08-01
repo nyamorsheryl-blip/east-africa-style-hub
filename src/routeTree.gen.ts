@@ -14,6 +14,7 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -50,6 +51,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/explore': typeof ExploreRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
   '/seller': typeof SellerRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/explore': typeof ExploreRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
   '/seller': typeof SellerRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/explore': typeof ExploreRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
   '/seller': typeof SellerRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/explore'
+    | '/messages'
     | '/orders'
     | '/profile'
     | '/seller'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/explore'
+    | '/messages'
     | '/orders'
     | '/profile'
     | '/seller'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/explore'
+    | '/messages'
     | '/orders'
     | '/profile'
     | '/seller'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   CartRoute: typeof CartRoute
   ExploreRoute: typeof ExploreRoute
+  MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRoute
   SellerRoute: typeof SellerRoute
@@ -277,6 +290,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   CartRoute: CartRoute,
   ExploreRoute: ExploreRoute,
+  MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRoute,
   SellerRoute: SellerRoute,

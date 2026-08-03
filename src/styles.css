@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * MaeLove design system — Vanilla, Baby Pink, Cherry Red, Yellow.
- * Luxury / minimal / glass. Typography: Montserrat.
+ * MaeLove design system — Cherry Dark, Cherry Red, Cherry Pink,
+ * Soft Rose, Peach, Golden Honey, Vanilla Cream.
+ * Warm / premium / elegant / playful. Typography: Montserrat.
  */
 
 @theme inline {
@@ -37,21 +38,27 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-vanilla: var(--vanilla);
-  --color-blush: var(--blush);
+  /* MaeLove brand ramp */
+  --color-cherry-dark: var(--cherry-dark);
   --color-cherry: var(--cherry);
-  --color-sun: var(--sun);
-  --color-ink: var(--ink);
+  --color-cherry-pink: var(--cherry-pink);
+  --color-rose: var(--rose);
+  --color-peach: var(--peach);
+  --color-honey: var(--honey);
+  --color-vanilla: var(--vanilla);
 
   /* legacy aliases so older screens keep compiling */
-  --color-plum: var(--ink);
+  --color-blush: var(--rose);
+  --color-sun: var(--honey);
+  --color-ink: var(--cherry-dark);
+  --color-plum: var(--cherry-dark);
   --color-berry: var(--cherry);
-  --color-lime: var(--sun);
+  --color-lime: var(--honey);
   --color-cream: var(--vanilla);
   --color-jewel-crimson: var(--cherry);
-  --color-jewel-saffron: var(--sun);
-  --color-jewel-teal: var(--blush);
-  --color-jewel-ink: var(--ink);
+  --color-jewel-saffron: var(--honey);
+  --color-jewel-teal: var(--peach);
+  --color-jewel-ink: var(--cherry-dark);
 
   --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
@@ -60,65 +67,88 @@
 :root {
   --radius: 1.5rem;
 
-  --vanilla: oklch(0.965 0.033 96);   /* #F8F4E8 */
-  --blush: oklch(0.79 0.14 348);      /* #FFABD7 */
-  --cherry: oklch(0.51 0.22 21);      /* #D2042D */
-  --sun: oklch(0.96 0.22 108);        /* #FDF400 */
-  --ink: oklch(0.21 0.012 40);
-  --cream: var(--vanilla);
-  --plum: var(--ink);
-  --berry: var(--cherry);
-  --lime: var(--sun);
+  --cherry-dark: oklch(0.26 0.135 12);   /* #5A0015 */
+  --cherry: oklch(0.43 0.198 18);        /* #A8002A */
+  --cherry-pink: oklch(0.60 0.257 5);    /* #F40062 */
+  --rose: oklch(0.72 0.145 8);           /* #F97893 */
+  --peach: oklch(0.79 0.105 27);         /* #FFA096 */
+  --honey: oklch(0.875 0.145 86);        /* #FFD34D */
+  --vanilla: oklch(0.965 0.062 100);     /* #FFF0B5 */
 
-  --background: var(--vanilla);
-  --foreground: var(--ink);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--ink);
+  /* legacy aliases */
+  --ink: var(--cherry-dark);
+  --blush: var(--rose);
+  --sun: var(--honey);
+  --cream: var(--vanilla);
+  --plum: var(--cherry-dark);
+  --berry: var(--cherry);
+  --lime: var(--honey);
+
+  --background: oklch(0.985 0.028 100);
+  --foreground: var(--cherry-dark);
+  --card: oklch(1 0.006 100);
+  --card-foreground: var(--cherry-dark);
+  --popover: oklch(1 0.006 100);
+  --popover-foreground: var(--cherry-dark);
   --primary: var(--cherry);
-  --primary-foreground: oklch(0.995 0.003 96);
-  --secondary: var(--blush);
-  --secondary-foreground: var(--ink);
-  --muted: oklch(0.94 0.018 92);
-  --muted-foreground: oklch(0.52 0.02 60);
-  --accent: var(--blush);
-  --accent-foreground: var(--ink);
-  --destructive: var(--cherry);
-  --destructive-foreground: oklch(0.99 0.005 96);
-  --border: oklch(0.9 0.02 90);
-  --input: oklch(0.93 0.015 90);
+  --primary-foreground: oklch(0.99 0.02 100);
+  --secondary: var(--peach);
+  --secondary-foreground: var(--cherry-dark);
+  --muted: oklch(0.945 0.035 96);
+  --muted-foreground: oklch(0.52 0.055 20);
+  --accent: var(--rose);
+  --accent-foreground: var(--cherry-dark);
+  --destructive: var(--cherry-pink);
+  --destructive-foreground: oklch(0.99 0.02 100);
+  --border: oklch(0.905 0.04 60);
+  --input: oklch(0.935 0.035 70);
   --ring: var(--cherry);
 
-  --gradient-hero: linear-gradient(140deg, var(--cherry) 0%, var(--blush) 62%, var(--sun) 130%);
-  --gradient-blush: linear-gradient(140deg, var(--blush) 0%, var(--vanilla) 100%);
-  --gradient-sun: linear-gradient(120deg, var(--sun) 0%, var(--blush) 100%);
-  --shadow-glow: 0 24px 60px -24px color-mix(in oklab, var(--cherry) 42%, transparent);
-  --shadow-soft: 0 14px 44px -18px color-mix(in oklab, var(--ink) 22%, transparent);
-  --shadow-card: 0 2px 10px -4px color-mix(in oklab, var(--ink) 14%, transparent);
+  --gradient-hero: linear-gradient(140deg, var(--cherry-dark) 0%, var(--cherry) 42%, var(--cherry-pink) 74%, var(--peach) 118%);
+  --gradient-blush: linear-gradient(140deg, var(--rose) 0%, var(--vanilla) 100%);
+  --gradient-sun: linear-gradient(120deg, var(--honey) 0%, var(--peach) 100%);
+  --shadow-glow: 0 24px 60px -24px color-mix(in oklab, var(--cherry) 45%, transparent);
+  --shadow-soft: 0 14px 44px -18px color-mix(in oklab, var(--cherry-dark) 26%, transparent);
+  --shadow-card: 0 2px 10px -4px color-mix(in oklab, var(--cherry-dark) 16%, transparent);
 }
 
 .dark {
-  --vanilla: oklch(0.22 0.012 80);
-  --ink: oklch(0.97 0.01 96);
-  --background: oklch(0.17 0.01 60);
-  --foreground: oklch(0.97 0.01 96);
-  --card: oklch(0.23 0.012 60);
-  --card-foreground: oklch(0.97 0.01 96);
-  --popover: oklch(0.23 0.012 60);
-  --popover-foreground: oklch(0.97 0.01 96);
-  --primary: oklch(0.62 0.21 21);
-  --primary-foreground: oklch(0.99 0.005 96);
-  --secondary: oklch(0.42 0.1 348);
-  --secondary-foreground: oklch(0.97 0.01 96);
-  --muted: oklch(0.27 0.012 60);
-  --muted-foreground: oklch(0.72 0.02 80);
-  --accent: oklch(0.45 0.11 348);
-  --accent-foreground: oklch(0.97 0.01 96);
-  --border: oklch(0.32 0.012 60);
-  --input: oklch(0.3 0.012 60);
-  --shadow-soft: 0 14px 44px -18px oklch(0 0 0 / 0.6);
-  --shadow-card: 0 2px 12px -4px oklch(0 0 0 / 0.55);
+  --cherry-dark: oklch(0.22 0.11 12);
+  --cherry: oklch(0.55 0.22 18);
+  --cherry-pink: oklch(0.66 0.25 5);
+  --rose: oklch(0.70 0.14 8);
+  --peach: oklch(0.76 0.11 27);
+  --honey: oklch(0.85 0.145 86);
+  --vanilla: oklch(0.95 0.055 100);
+
+  --ink: var(--vanilla);
+  --blush: var(--rose);
+  --sun: var(--honey);
+  --cream: var(--vanilla);
+  --plum: var(--cherry-dark);
+  --berry: var(--cherry);
+  --lime: var(--honey);
+
+  --background: oklch(0.17 0.045 14);
+  --foreground: oklch(0.96 0.03 92);
+  --card: oklch(0.235 0.05 14);
+  --card-foreground: oklch(0.96 0.03 92);
+  --popover: oklch(0.235 0.05 14);
+  --popover-foreground: oklch(0.96 0.03 92);
+  --primary: oklch(0.62 0.235 12);
+  --primary-foreground: oklch(0.99 0.02 100);
+  --secondary: oklch(0.42 0.10 25);
+  --secondary-foreground: oklch(0.96 0.03 92);
+  --muted: oklch(0.28 0.045 14);
+  --muted-foreground: oklch(0.76 0.045 60);
+  --accent: oklch(0.45 0.12 8);
+  --accent-foreground: oklch(0.96 0.03 92);
+  --border: oklch(0.33 0.05 14);
+  --input: oklch(0.31 0.05 14);
+  --ring: var(--cherry-pink);
+  --shadow-glow: 0 24px 60px -24px color-mix(in oklab, var(--cherry-pink) 45%, transparent);
+  --shadow-soft: 0 14px 44px -18px oklch(0 0 0 / 0.62);
+  --shadow-card: 0 2px 12px -4px oklch(0 0 0 / 0.58);
 }
 
 @layer base {
@@ -127,17 +157,24 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     scroll-behavior: smooth;
+    color-scheme: light;
   }
+  html.dark { color-scheme: dark; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     background-image:
-      radial-gradient(ellipse 90% 45% at 12% 0%, color-mix(in oklab, var(--blush) 42%, transparent), transparent 62%),
-      radial-gradient(ellipse 70% 40% at 100% 8%, color-mix(in oklab, var(--sun) 22%, transparent), transparent 60%);
+      radial-gradient(ellipse 90% 45% at 12% 0%, color-mix(in oklab, var(--peach) 46%, transparent), transparent 62%),
+      radial-gradient(ellipse 70% 40% at 100% 8%, color-mix(in oklab, var(--honey) 34%, transparent), transparent 60%);
     background-attachment: fixed, fixed;
     background-repeat: no-repeat, no-repeat;
     min-height: 100vh;
     font-family: var(--font-sans);
+  }
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 90% 45% at 12% 0%, color-mix(in oklab, var(--cherry) 34%, transparent), transparent 62%),
+      radial-gradient(ellipse 70% 40% at 100% 8%, color-mix(in oklab, var(--cherry-pink) 18%, transparent), transparent 60%);
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
@@ -150,51 +187,58 @@
 @utility glass {
   background: color-mix(in oklab, var(--card) 62%, transparent);
   backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid color-mix(in oklab, white 55%, transparent);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 55%, transparent);
   box-shadow: var(--shadow-card);
 }
 
 @utility glass-strong {
-  background: color-mix(in oklab, var(--card) 82%, transparent);
+  background: color-mix(in oklab, var(--card) 84%, transparent);
   backdrop-filter: blur(34px) saturate(190%);
-  border: 1px solid color-mix(in oklab, white 62%, transparent);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 60%, transparent);
   box-shadow: var(--shadow-soft);
 }
 
 @utility glass-cherry {
-  background: color-mix(in oklab, var(--cherry) 82%, transparent);
+  background: color-mix(in oklab, var(--cherry) 86%, transparent);
   backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid color-mix(in oklab, white 28%, transparent);
-  color: oklch(0.99 0.005 96);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 30%, transparent);
+  color: oklch(0.99 0.02 100);
   box-shadow: var(--shadow-glow);
 }
 
 @utility glass-blush {
-  background: color-mix(in oklab, var(--blush) 55%, transparent);
+  background: color-mix(in oklab, var(--peach) 58%, transparent);
   backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid color-mix(in oklab, white 55%, transparent);
-  color: var(--ink);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 55%, transparent);
+  color: var(--cherry-dark);
+}
+
+@utility glass-honey {
+  background: color-mix(in oklab, var(--honey) 62%, transparent);
+  backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 60%, transparent);
+  color: var(--cherry-dark);
 }
 
 @utility glass-dark {
-  background: color-mix(in oklab, var(--ink) 78%, transparent);
+  background: color-mix(in oklab, var(--cherry-dark) 82%, transparent);
   backdrop-filter: blur(26px) saturate(170%);
-  border: 1px solid color-mix(in oklab, white 12%, transparent);
-  color: oklch(0.98 0.01 96);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 14%, transparent);
+  color: oklch(0.98 0.02 100);
 }
 
 /* legacy alias used by older screens */
 @utility glass-berry {
-  background: color-mix(in oklab, var(--cherry) 80%, transparent);
+  background: color-mix(in oklab, var(--cherry) 84%, transparent);
   backdrop-filter: blur(26px) saturate(170%);
-  border: 1px solid color-mix(in oklab, white 25%, transparent);
-  color: oklch(0.99 0.005 96);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 26%, transparent);
+  color: oklch(0.99 0.02 100);
 }
 
 @utility glass-pink {
-  background: color-mix(in oklab, var(--blush) 55%, transparent);
+  background: color-mix(in oklab, var(--rose) 55%, transparent);
   backdrop-filter: blur(24px) saturate(165%);
-  border: 1px solid color-mix(in oklab, white 55%, transparent);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 55%, transparent);
 }
 
 @utility gradient-text {
@@ -236,7 +280,7 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, color-mix(in oklab, white 45%, transparent), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--vanilla) 55%, transparent), transparent);
   animation: ml-shimmer 1.6s infinite;
 }
 

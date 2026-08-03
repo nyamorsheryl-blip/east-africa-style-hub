@@ -88,13 +88,21 @@ function Home() {
       {/* Top bar */}
       <header className="sticky top-0 z-40 px-5 pb-3 pt-6 backdrop-blur-xl" style={{ background: "linear-gradient(180deg, color-mix(in oklab, var(--background) 92%, transparent), transparent)" }}>
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl font-black tracking-[-0.05em]">
-            Mae<span className="text-primary">Love</span>
+          <Link to="/" aria-label="MaeLove home" className="press flex items-center gap-2">
+            <span className="glass flex h-10 w-10 items-center justify-center rounded-2xl p-2">
+              <CherryMark className="h-full w-full" />
+            </span>
+            <span className="text-xl font-black tracking-[-0.05em]">
+              Mae<span className="text-primary">Love</span>
+            </span>
           </Link>
-          <button className="press glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold">
-            <MapPin className="h-3.5 w-3.5 text-primary" /> Nairobi
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button className="press glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold">
+              <MapPin className="h-3.5 w-3.5 text-primary" /> Nairobi
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          </div>
         </div>
         <Link
           to="/explore"

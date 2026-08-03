@@ -9,6 +9,8 @@ import { Chip, ChipRow } from "@/components/ml/chips";
 import { ProductCard, type ProductCardData } from "@/components/ml/product-card";
 import { StoreCard } from "@/components/ml/store-card";
 import { ProductSkeletonGrid } from "@/components/ml/states";
+import { CherryMark } from "@/components/ml/cherry-mark";
+import { ThemeToggle } from "@/components/ml/theme-toggle";
 import {
   DEMO_PRODUCTS, DEMO_STORES, CATEGORY_CHIPS, POPULAR_CATEGORIES,
   FUTURE_LANES, AI_FEATURES, IMAGES,

@@ -65,17 +65,23 @@ function CartPage() {
         <>
           <div className="mt-6 space-y-3 px-5">
             {cart.items.map((i) => (
-              <div key={i.productId} className="glass flex gap-4 rounded-3xl p-3">
+              <div key={i.productId} className={`card-ml slide-up flex gap-4 ${i.unavailable ? "opacity-70" : ""}`}>
                 <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
-                  {i.imageUrl && <img src={i.imageUrl} alt="" className="h-full w-full object-cover" />}
+                  {i.imageUrl && <img src={i.imageUrl} alt="" className={`h-full w-full object-cover ${i.unavailable ? "grayscale" : ""}`} />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="line-clamp-2 text-[13px] font-bold leading-snug">{i.title}</div>
-                  <div className="mt-1 text-base font-black">{formatMoney(i.priceCents)}</div>
+                  {i.unavailable ? (
+                    <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-extrabold text-muted-foreground">
+                      <AlertCircle className="h-3.5 w-3.5" /> Unavailable — not counted
+                    </div>
+                  ) : (
+                    <div className="mt-1 text-base font-black">{formatMoney(i.priceCents)}</div>
+                  )}
                   <div className="mt-3 flex items-center gap-2">
-                    <button onClick={() => cart.setQty(i.productId, i.quantity - 1)} aria-label="Decrease quantity" className="press glass h-8 w-8 rounded-full text-sm font-black">−</button>
+                    <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity - 1)} aria-label="Decrease quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">−</button>
                     <span className="w-6 text-center text-sm font-bold">{i.quantity}</span>
-                    <button onClick={() => cart.setQty(i.productId, i.quantity + 1)} aria-label="Increase quantity" className="press glass h-8 w-8 rounded-full text-sm font-black">+</button>
+                    <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity + 1)} aria-label="Increase quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">+</button>
                   </div>
                 </div>
                 <button onClick={() => cart.remove(i.productId)} aria-label="Remove item" className="press h-9 w-9 text-muted-foreground hover:text-primary">
@@ -83,7 +89,13 @@ function CartPage() {
                 </button>
               </div>
             ))}
+            {cart.unavailable.length > 0 && (
+              <p className="px-2 text-[12px] font-semibold text-muted-foreground">
+                {cart.unavailable.length} item{cart.unavailable.length > 1 ? "s" : ""} became unavailable and {cart.unavailable.length > 1 ? "are" : "is"} excluded from your total.
+              </p>
+            )}
           </div>
+
 
           {/* Coupon */}
           <div className="mt-8 px-5">

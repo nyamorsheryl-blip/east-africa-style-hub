@@ -9,6 +9,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { BottomNav } from "@/components/ml/bottom-nav";
+import { TopBar } from "@/components/ml/top-bar";
 import { Section } from "@/components/ml/section";
 import { Skeleton } from "@/components/ml/states";
 
@@ -70,7 +71,8 @@ function Profile() {
   const initial = name.charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen pb-32">
+    <div className="page-enter min-h-screen pb-32">
+      <TopBar title="Profile" />
       <header className="rise px-5 pt-8">
         <div className="relative overflow-hidden rounded-[2rem] p-6 text-white shadow-[var(--shadow-glow)]" style={{ background: "var(--gradient-hero)" }}>
           <div className="flex items-center gap-4">

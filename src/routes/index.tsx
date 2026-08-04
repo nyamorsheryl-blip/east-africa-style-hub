@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, MapPin, ChevronDown, Zap, Sparkles, ArrowRight } from "lucide-react";
+import { Zap, Sparkles, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/ml/bottom-nav";
 import { Section, Rail } from "@/components/ml/section";
@@ -9,8 +9,8 @@ import { Chip, ChipRow } from "@/components/ml/chips";
 import { ProductCard, type ProductCardData } from "@/components/ml/product-card";
 import { StoreCard } from "@/components/ml/store-card";
 import { ProductSkeletonGrid } from "@/components/ml/states";
-import { CherryMark } from "@/components/ml/cherry-mark";
-import { ThemeToggle } from "@/components/ml/theme-toggle";
+import { TopBar } from "@/components/ml/top-bar";
+import { SearchBar } from "@/components/ml/search-bar";
 import {
   DEMO_PRODUCTS, DEMO_STORES, CATEGORY_CHIPS, POPULAR_CATEGORIES,
   FUTURE_LANES, AI_FEATURES, IMAGES,
@@ -86,34 +86,12 @@ function Home() {
   );
 
   return (
-    <div className="min-h-screen pb-32">
-      {/* Top bar */}
-      <header className="sticky top-0 z-40 px-5 pb-3 pt-6 backdrop-blur-xl" style={{ background: "linear-gradient(180deg, color-mix(in oklab, var(--background) 92%, transparent), transparent)" }}>
-        <div className="flex items-center justify-between">
-          <Link to="/" aria-label="MaeLove home" className="press flex items-center gap-2">
-            <span className="glass flex h-10 w-10 items-center justify-center rounded-2xl p-2">
-              <CherryMark className="h-full w-full" />
-            </span>
-            <span className="text-xl font-black tracking-[-0.05em]">
-              Mae<span className="text-primary">Love</span>
-            </span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <button className="press glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold">
-              <MapPin className="h-3.5 w-3.5 text-primary" /> Nairobi
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-          </div>
-        </div>
-        <Link
-          to="/explore"
-          className="press glass mt-4 flex items-center gap-3 rounded-full px-5 py-3.5"
-        >
-          <Search className="h-[18px] w-[18px] text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Search boutiques, pieces, designers…</span>
-        </Link>
-      </header>
+    <div className="page-enter min-h-screen pb-32">
+      <TopBar title="Home" />
+
+      <div className="px-5 pt-1">
+        <SearchBar onSubmit={() => { window.location.href = "/explore"; }} />
+      </div>
 
       <ChipRow>
         {CATEGORY_CHIPS.map((c) => (
@@ -138,7 +116,7 @@ function Home() {
             <p className="mt-2 max-w-[16rem] text-sm text-white/80">
               Handmade luxury from 240+ independent boutiques.
             </p>
-            <Link to="/explore" className="press glass-cherry mt-5 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-extrabold">
+            <Link to="/explore" className="btn-base btn-primary mt-5">
               Shop now <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -219,7 +197,7 @@ function Home() {
       <Section title="More ways to shop" subtitle="Live, rentals, auctions, digital & services">
         <Rail>
           {FUTURE_LANES.map((l) => (
-            <div key={l.key} className="glass w-[200px] shrink-0 snap-start rounded-3xl p-5">
+            <div key={l.key} className="card-ml w-[200px] shrink-0 snap-start">
               <div className="text-2xl">{l.emoji}</div>
               <div className="mt-3 text-sm font-black">{l.title}</div>
               <p className="mt-1 text-[12px] leading-snug text-muted-foreground">{l.copy}</p>
@@ -235,7 +213,7 @@ function Home() {
       <Section title="AI at MaeLove" subtitle="Personal styling, powered by you">
         <div className="grid grid-cols-2 gap-3 px-5">
           {AI_FEATURES.map((f) => (
-            <div key={f.title} className="glass rounded-3xl p-4">
+            <div key={f.title} className="card-ml">
               <div className="text-xl">{f.emoji}</div>
               <div className="mt-2 text-[13px] font-black leading-tight">{f.title}</div>
               <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{f.copy}</p>

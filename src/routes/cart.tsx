@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Trash2, ShoppingBag, Tag, Wallet, Truck, CreditCard, ArrowLeft, Check } from "lucide-react";
+import { Trash2, ShoppingBag, Tag, Wallet, Truck, CreditCard, ArrowLeft, Check, AlertCircle } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/format";
 import { BottomNav } from "@/components/ml/bottom-nav";
 import { EmptyState } from "@/components/ml/states";
+import { TopBar } from "@/components/ml/top-bar";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -44,13 +45,13 @@ function CartPage() {
   const total = Math.max(0, cart.total - discount) + (cart.items.length ? ship : 0);
 
   return (
-    <div className="min-h-screen pb-40">
-      <header className="flex items-center gap-3 px-5 pb-2 pt-8">
-        <Link to="/" aria-label="Back" className="press glass flex h-11 w-11 items-center justify-center rounded-full">
-          <ArrowLeft className="h-4 w-4" />
+    <div className="page-enter min-h-screen pb-40">
+      <TopBar title="Your bag" />
+      <div className="px-5 pt-2">
+        <Link to="/" aria-label="Continue shopping" className="press glass inline-flex h-10 items-center gap-2 rounded-full px-4 text-[12px] font-bold">
+          <ArrowLeft className="h-4 w-4" /> Continue shopping
         </Link>
-        <h1 className="text-[30px] font-black leading-none tracking-tight">Your bag</h1>
-      </header>
+      </div>
 
       {cart.items.length === 0 ? (
         <div className="mt-10">
@@ -58,24 +59,30 @@ function CartPage() {
             icon={<ShoppingBag className="h-5 w-5" />}
             title="Your bag is empty"
             copy="Pieces you add will appear here, saved across devices."
-            action={<Link to="/explore" className="press glass-cherry rounded-full px-6 py-3 text-sm font-extrabold">Start shopping</Link>}
+            action={<Link to="/explore" className="btn-base btn-primary">Start shopping</Link>}
           />
         </div>
       ) : (
         <>
           <div className="mt-6 space-y-3 px-5">
             {cart.items.map((i) => (
-              <div key={i.productId} className="glass flex gap-4 rounded-3xl p-3">
+              <div key={i.productId} className={`card-ml slide-up flex gap-4 ${i.unavailable ? "opacity-70" : ""}`}>
                 <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
-                  {i.imageUrl && <img src={i.imageUrl} alt="" className="h-full w-full object-cover" />}
+                  {i.imageUrl && <img src={i.imageUrl} alt="" className={`h-full w-full object-cover ${i.unavailable ? "grayscale" : ""}`} />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="line-clamp-2 text-[13px] font-bold leading-snug">{i.title}</div>
-                  <div className="mt-1 text-base font-black">{formatMoney(i.priceCents)}</div>
+                  {i.unavailable ? (
+                    <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-extrabold text-muted-foreground">
+                      <AlertCircle className="h-3.5 w-3.5" /> Unavailable — not counted
+                    </div>
+                  ) : (
+                    <div className="mt-1 text-base font-black">{formatMoney(i.priceCents)}</div>
+                  )}
                   <div className="mt-3 flex items-center gap-2">
-                    <button onClick={() => cart.setQty(i.productId, i.quantity - 1)} aria-label="Decrease quantity" className="press glass h-8 w-8 rounded-full text-sm font-black">−</button>
+                    <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity - 1)} aria-label="Decrease quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">−</button>
                     <span className="w-6 text-center text-sm font-bold">{i.quantity}</span>
-                    <button onClick={() => cart.setQty(i.productId, i.quantity + 1)} aria-label="Increase quantity" className="press glass h-8 w-8 rounded-full text-sm font-black">+</button>
+                    <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity + 1)} aria-label="Increase quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">+</button>
                   </div>
                 </div>
                 <button onClick={() => cart.remove(i.productId)} aria-label="Remove item" className="press h-9 w-9 text-muted-foreground hover:text-primary">
@@ -83,7 +90,13 @@ function CartPage() {
                 </button>
               </div>
             ))}
+            {cart.unavailable.length > 0 && (
+              <p className="px-2 text-[12px] font-semibold text-muted-foreground">
+                {cart.unavailable.length} item{cart.unavailable.length > 1 ? "s" : ""} became unavailable and {cart.unavailable.length > 1 ? "are" : "is"} excluded from your total.
+              </p>
+            )}
           </div>
+
 
           {/* Coupon */}
           <div className="mt-8 px-5">
@@ -141,7 +154,7 @@ function CartPage() {
 
           {/* Summary */}
           <section className="mt-8 px-5">
-            <div className="glass rounded-3xl p-5">
+            <div className="card-ml p-5">
               <h2 className="mb-4 text-[15px] font-black tracking-tight">Order summary</h2>
               <Row label="Subtotal" value={formatMoney(cart.total)} />
               {discount > 0 && <Row label="Discount" value={`−${formatMoney(discount)}`} accent />}
@@ -155,7 +168,7 @@ function CartPage() {
           </section>
 
           <div className="fixed inset-x-0 bottom-0 z-40 px-5 pb-24 pt-4" style={{ background: "linear-gradient(0deg, var(--background) 62%, transparent)" }}>
-            <button className="press glass-cherry w-full rounded-full py-4 text-sm font-extrabold">
+            <button className="btn-base btn-primary w-full py-4">
               Checkout · {formatMoney(total)}
             </button>
           </div>

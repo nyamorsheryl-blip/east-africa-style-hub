@@ -4,6 +4,7 @@ import {
   Megaphone, Activity, Sparkles, ArrowUpRight, Plus,
 } from "lucide-react";
 import { BottomNav } from "@/components/ml/bottom-nav";
+import { TopBar } from "@/components/ml/top-bar";
 import { Section, Rail } from "@/components/ml/section";
 import { DEMO_PRODUCTS } from "@/lib/demo-data";
 import { formatMoney } from "@/lib/format";
@@ -45,7 +46,8 @@ const BARS = [38, 52, 44, 66, 58, 82, 74];
 
 function Sell() {
   return (
-    <div className="min-h-screen pb-32">
+    <div className="page-enter min-h-screen pb-32">
+      <TopBar title="Sell" />
       <header className="px-5 pb-2 pt-8">
         <div className="flex items-start justify-between gap-4">
           <div>

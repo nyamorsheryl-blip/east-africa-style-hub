@@ -2,13 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
-  Search, SlidersHorizontal, LayoutGrid, List, X, Star, ArrowLeft,
+  Search, SlidersHorizontal, LayoutGrid, List, Star,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/ml/bottom-nav";
 import { Chip, ChipRow } from "@/components/ml/chips";
 import { ProductCard, type ProductCardData } from "@/components/ml/product-card";
 import { ProductSkeletonGrid, EmptyState } from "@/components/ml/states";
+import { SearchBar } from "@/components/ml/search-bar";
+import { TopBar } from "@/components/ml/top-bar";
 import { DEMO_PRODUCTS, CATEGORY_CHIPS } from "@/lib/demo-data";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -94,29 +96,11 @@ function Explore() {
   const activeCount = Object.keys(selected).length;
 
   return (
-    <div className="min-h-screen pb-32">
-      <header className="sticky top-0 z-40 px-5 pb-4 pt-6 backdrop-blur-xl" style={{ background: "linear-gradient(180deg, color-mix(in oklab, var(--background) 94%, transparent), transparent)" }}>
-        <div className="flex items-center gap-3">
-          <Link to="/" aria-label="Back" className="press glass flex h-11 w-11 items-center justify-center rounded-full">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <div className="glass flex flex-1 items-center gap-2.5 rounded-full px-4 py-3">
-            <Search className="h-[18px] w-[18px] text-muted-foreground" />
-            <input
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              placeholder="Search MaeLove"
-              aria-label="Search products"
-              className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground"
-            />
-            {term && (
-              <button onClick={() => setTerm("")} aria-label="Clear search" className="press">
-                <X className="h-4 w-4 text-muted-foreground" />
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="page-enter min-h-screen pb-32">
+      <TopBar title="Categories" />
+      <div className="px-5 pt-1">
+        <SearchBar value={term} onChange={setTerm} placeholder="Search MaeLove" />
+      </div>
 
       <ChipRow>
         {CATEGORY_CHIPS.map((c) => (
@@ -163,8 +147,8 @@ function Explore() {
                 </div>
               ))}
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setSelected({})} className="press glass flex-1 rounded-full py-3 text-sm font-bold">Clear all</button>
-                <button className="press glass-cherry flex-1 rounded-full py-3 text-sm font-extrabold">Show {results.length} results</button>
+                <button onClick={() => setSelected({})} className="btn-base btn-secondary flex-1">Clear all</button>
+                <button className="btn-base btn-primary flex-1">Show {results.length} results</button>
               </div>
             </div>
           </SheetContent>

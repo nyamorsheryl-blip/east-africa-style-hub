@@ -27,6 +27,7 @@ export function Chip({
 
 export function ChipRow({ children }: { children: ReactNode }) {
   return (
-    <div className="no-scrollbar flex snap-x gap-2 overflow-x-auto px-5">{children}</div>
+    <div className="no-scrollbar mt-4 flex snap-x gap-2 overflow-x-auto px-5 py-1">{children}</div>
   );
 }
+

@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Trash2, ShoppingBag, Tag, Wallet, Truck, CreditCard, ArrowLeft, Check } from "lucide-react";
+import { Trash2, ShoppingBag, Tag, Wallet, Truck, CreditCard, ArrowLeft, Check, AlertCircle } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/format";
 import { BottomNav } from "@/components/ml/bottom-nav";
 import { EmptyState } from "@/components/ml/states";
+import { TopBar } from "@/components/ml/top-bar";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -44,13 +45,13 @@ function CartPage() {
   const total = Math.max(0, cart.total - discount) + (cart.items.length ? ship : 0);
 
   return (
-    <div className="min-h-screen pb-40">
-      <header className="flex items-center gap-3 px-5 pb-2 pt-8">
-        <Link to="/" aria-label="Back" className="press glass flex h-11 w-11 items-center justify-center rounded-full">
-          <ArrowLeft className="h-4 w-4" />
+    <div className="page-enter min-h-screen pb-40">
+      <TopBar title="Your bag" />
+      <div className="px-5 pt-2">
+        <Link to="/" aria-label="Continue shopping" className="press glass inline-flex h-10 items-center gap-2 rounded-full px-4 text-[12px] font-bold">
+          <ArrowLeft className="h-4 w-4" /> Continue shopping
         </Link>
-        <h1 className="text-[30px] font-black leading-none tracking-tight">Your bag</h1>
-      </header>
+      </div>
 
       {cart.items.length === 0 ? (
         <div className="mt-10">
@@ -58,7 +59,7 @@ function CartPage() {
             icon={<ShoppingBag className="h-5 w-5" />}
             title="Your bag is empty"
             copy="Pieces you add will appear here, saved across devices."
-            action={<Link to="/explore" className="press glass-cherry rounded-full px-6 py-3 text-sm font-extrabold">Start shopping</Link>}
+            action={<Link to="/explore" className="btn-base btn-primary">Start shopping</Link>}
           />
         </div>
       ) : (
@@ -153,7 +154,7 @@ function CartPage() {
 
           {/* Summary */}
           <section className="mt-8 px-5">
-            <div className="glass rounded-3xl p-5">
+            <div className="card-ml p-5">
               <h2 className="mb-4 text-[15px] font-black tracking-tight">Order summary</h2>
               <Row label="Subtotal" value={formatMoney(cart.total)} />
               {discount > 0 && <Row label="Discount" value={`−${formatMoney(discount)}`} accent />}
@@ -167,7 +168,7 @@ function CartPage() {
           </section>
 
           <div className="fixed inset-x-0 bottom-0 z-40 px-5 pb-24 pt-4" style={{ background: "linear-gradient(0deg, var(--background) 62%, transparent)" }}>
-            <button className="press glass-cherry w-full rounded-full py-4 text-sm font-extrabold">
+            <button className="btn-base btn-primary w-full py-4">
               Checkout · {formatMoney(total)}
             </button>
           </div>

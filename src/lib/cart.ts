@@ -9,6 +9,8 @@ export interface CartItem {
   imageUrl?: string;
   sellerId: string;
   quantity: number;
+  /** true when the product was unpublished, deleted or sold out */
+  unavailable?: boolean;
 }
 
 const KEY = "maelove.cart";
@@ -31,6 +33,8 @@ type Row = {
     sale_price_cents: number | null;
     images: string[] | null;
     owner_id: string | null;
+    published: boolean | null;
+    stock: number | null;
   } | null;
 };
 
@@ -43,13 +47,14 @@ function rowToItem(r: Row): CartItem {
     imageUrl: p?.images?.[0],
     sellerId: p?.owner_id ?? "",
     quantity: r.quantity,
+    unavailable: !p || p.published === false || (p.stock !== null && p.stock <= 0),
   };
 }
 
 async function fetchRemote(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from("cart_items")
-    .select("product_id, quantity, products(title, price_cents, sale_price_cents, images, owner_id)")
+    .select("product_id, quantity, products(title, price_cents, sale_price_cents, images, owner_id, published, stock)")
     .eq("user_id", userId);
   if (error) throw error;
   return ((data ?? []) as unknown as Row[]).map(rowToItem);
@@ -104,7 +109,24 @@ export function useCart() {
     })();
     const on = () => { void refresh(); };
     window.addEventListener("maelove:cart", on);
-    return () => { cancelled = true; window.removeEventListener("maelove:cart", on); };
+
+    // Live updates: any change to this shopper's cart rows, or to a product
+    // in it (price, stock, published), refreshes badge + totals instantly.
+    const channel = supabase
+      .channel(`cart-${user.id}`)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "cart_items", filter: `user_id=eq.${user.id}` },
+        () => { void refresh(); })
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "products" },
+        () => { void refresh(); })
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("maelove:cart", on);
+      void supabase.removeChannel(channel);
+    };
   }, [user, refresh]);
 
   const add = useCallback(async (item: Omit<CartItem, "quantity">, qty = 1) => {
@@ -151,14 +173,18 @@ export function useCart() {
     await refresh();
   }, [user, refresh]);
 
+  const available = items.filter((i) => !i.unavailable);
+
   return {
     items,
+    available,
+    unavailable: items.filter((i) => i.unavailable),
     synced: !!user,
     add,
     remove,
     setQty,
     clear,
-    total: items.reduce((s, i) => s + i.priceCents * i.quantity, 0),
-    count: items.reduce((s, i) => s + i.quantity, 0),
+    total: available.reduce((s, i) => s + i.priceCents * i.quantity, 0),
+    count: available.reduce((s, i) => s + i.quantity, 0),
   };
 }

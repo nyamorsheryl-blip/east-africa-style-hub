@@ -67,13 +67,15 @@
 :root {
   --radius: 1.5rem;
 
-  --cherry-dark: oklch(0.26 0.135 12);   /* #5A0015 */
-  --cherry: oklch(0.43 0.198 18);        /* #A8002A */
-  --cherry-pink: oklch(0.60 0.257 5);    /* #F40062 */
-  --rose: oklch(0.72 0.145 8);           /* #F97893 */
-  --peach: oklch(0.79 0.105 27);         /* #FFA096 */
-  --honey: oklch(0.875 0.145 86);        /* #FFD34D */
-  --vanilla: oklch(0.965 0.062 100);     /* #FFF0B5 */
+  --cherry-dark: oklch(0.20 0.125 12);   /* deepest cherry — danger */
+  --cherry: oklch(0.255 0.145 12);       /* #5A0012 */
+  --cherry-pink: oklch(0.565 0.255 4);   /* #E6005C raspberry */
+  --rose: oklch(0.725 0.145 8);          /* #F87D9A */
+  --peach: oklch(0.825 0.090 38);        /* #FFB59D */
+  --honey: oklch(0.845 0.145 85);        /* #F7C84B */
+  --vanilla: oklch(0.968 0.058 100);     /* #FFF4C9 */
+  --raspberry: var(--cherry-pink);
+
 
   /* legacy aliases */
   --ink: var(--cherry-dark);

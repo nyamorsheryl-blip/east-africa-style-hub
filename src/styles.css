@@ -46,6 +46,7 @@
   --color-peach: var(--peach);
   --color-honey: var(--honey);
   --color-vanilla: var(--vanilla);
+  --color-raspberry: var(--cherry-pink);
 
   /* legacy aliases so older screens keep compiling */
   --color-blush: var(--rose);
@@ -115,13 +116,14 @@
 }
 
 .dark {
-  --cherry-dark: oklch(0.22 0.11 12);
-  --cherry: oklch(0.55 0.22 18);
-  --cherry-pink: oklch(0.66 0.25 5);
-  --rose: oklch(0.70 0.14 8);
-  --peach: oklch(0.76 0.11 27);
-  --honey: oklch(0.85 0.145 86);
-  --vanilla: oklch(0.95 0.055 100);
+  --cherry-dark: oklch(0.18 0.10 12);
+  --cherry: oklch(0.32 0.16 12);
+  --cherry-pink: oklch(0.62 0.25 4);
+  --rose: oklch(0.72 0.14 8);
+  --peach: oklch(0.80 0.09 38);
+  --honey: oklch(0.84 0.145 85);
+  --vanilla: oklch(0.955 0.055 100);
+  --raspberry: var(--cherry-pink);
 
   --ink: var(--vanilla);
   --blush: var(--rose);
@@ -291,4 +293,88 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Premium component utilities ───────────────────────────── */
+
+@utility btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.24s ease, background-color 0.24s ease, opacity 0.24s ease;
+}
+.btn-base:hover { transform: translateY(-1px); }
+.btn-base:active { transform: scale(0.965); }
+.btn-base:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+@utility btn-primary {
+  background: var(--cherry);
+  color: var(--vanilla);
+  box-shadow: 0 12px 30px -14px color-mix(in oklab, var(--cherry) 80%, transparent);
+}
+.btn-primary:hover { box-shadow: 0 18px 40px -14px color-mix(in oklab, var(--cherry) 85%, transparent); }
+
+@utility btn-secondary {
+  background: color-mix(in oklab, var(--vanilla) 80%, transparent);
+  color: var(--cherry);
+  border: 1.5px solid color-mix(in oklab, var(--cherry) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(160%);
+}
+.btn-secondary:hover { background: color-mix(in oklab, var(--vanilla) 95%, transparent); }
+
+@utility btn-danger {
+  background: var(--cherry-dark);
+  color: var(--vanilla);
+  box-shadow: 0 12px 30px -14px color-mix(in oklab, var(--cherry-dark) 80%, transparent);
+}
+
+@utility card-ml {
+  border-radius: 18px;
+  padding: 1.125rem;
+  background: color-mix(in oklab, var(--card) 78%, transparent);
+  backdrop-filter: blur(22px) saturate(175%);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 55%, transparent);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+}
+.card-ml:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+
+@utility search-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 9999px;
+  padding: 0.85rem 1.15rem;
+  background: color-mix(in oklab, var(--card) 76%, transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid color-mix(in oklab, var(--vanilla) 60%, transparent);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.28s ease, transform 0.28s ease;
+}
+.search-pill:focus-within { box-shadow: var(--shadow-soft); transform: translateY(-1px); }
+
+@keyframes ml-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ml-slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes ml-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
+
+@utility fade-in { animation: ml-fade-in 0.35s ease both; }
+@utility slide-up { animation: ml-slide-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@utility pop-in { animation: ml-pop 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@utility page-enter { animation: ml-slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@utility nav-glow {
+  color: var(--vanilla);
+  background: var(--cherry-pink);
+  box-shadow: 0 10px 26px -8px color-mix(in oklab, var(--cherry-pink) 75%, transparent),
+    0 0 0 6px color-mix(in oklab, var(--cherry-pink) 14%, transparent);
 }

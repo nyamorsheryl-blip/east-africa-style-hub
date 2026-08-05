@@ -350,7 +350,7 @@ function ProductPage() {
       <Section title="Recommended for you">
         <Rail>{DEMO_PRODUCTS.slice(0, 5).map((p) => <ProductCard key={`rec-${p.id}`} p={p} variant="rail" />)}</Rail>
       </Section>
-      <Section title={`More from ${storeName}`} action="Visit store" actionTo="/store/$slug">
+      <Section title={`More from ${storeName}`} action="Visit store">
         <Rail>{DEMO_PRODUCTS.filter((p) => p.store === storeName).concat(DEMO_PRODUCTS.slice(0, 3)).slice(0, 5).map((p, i) => <ProductCard key={`sel-${p.id}-${i}`} p={p} variant="rail" />)}</Rail>
       </Section>
       <Section title="Trending in your area" subtitle={boutique?.city ?? "Nairobi"}>

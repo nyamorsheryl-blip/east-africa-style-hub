@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`shimmer rounded-2xl bg-muted ${className}`} />;
+export function Skeleton({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return <div className={`shimmer rounded-2xl bg-muted ${className}`} style={style} />;
 }
+
 
 export function ProductSkeletonGrid({ count = 4 }: { count?: number }) {
   return (

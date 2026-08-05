@@ -10,19 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as SocialRouteImport } from './routes/social'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as LookbooksRouteImport } from './routes/lookbooks'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as StoreSlugRouteImport } from './routes/store.$slug'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as LookbookIdRouteImport } from './routes/lookbook.$id'
 import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
@@ -33,6 +37,11 @@ import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialRoute = SocialRouteImport.update({
+  id: '/social',
+  path: '/social',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -65,9 +74,19 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LookbooksRoute = LookbooksRouteImport.update({
+  id: '/lookbooks',
+  path: '/lookbooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -98,6 +117,11 @@ const StoreSlugRoute = StoreSlugRouteImport.update({
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LookbookIdRoute = LookbookIdRouteImport.update({
+  id: '/lookbook/$id',
+  path: '/lookbook/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthVerifyRoute = AuthVerifyRouteImport.update({
@@ -135,13 +159,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
+  '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
+  '/lookbooks': typeof LookbooksRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
+  '/social': typeof SocialRoute
   '/wishlist': typeof WishlistRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
@@ -149,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset': typeof AuthResetRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify': typeof AuthVerifyRoute
+  '/lookbook/$id': typeof LookbookIdRoute
   '/product/$id': typeof ProductIdRoute
   '/store/$slug': typeof StoreSlugRoute
   '/auth/': typeof AuthIndexRoute
@@ -156,13 +184,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
+  '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
+  '/lookbooks': typeof LookbooksRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
+  '/social': typeof SocialRoute
   '/wishlist': typeof WishlistRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
@@ -170,6 +201,7 @@ export interface FileRoutesByTo {
   '/auth/reset': typeof AuthResetRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify': typeof AuthVerifyRoute
+  '/lookbook/$id': typeof LookbookIdRoute
   '/product/$id': typeof ProductIdRoute
   '/store/$slug': typeof StoreSlugRoute
   '/auth': typeof AuthIndexRoute
@@ -179,13 +211,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
+  '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
+  '/lookbooks': typeof LookbooksRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
+  '/social': typeof SocialRoute
   '/wishlist': typeof WishlistRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
@@ -193,6 +228,7 @@ export interface FileRoutesById {
   '/auth/reset': typeof AuthResetRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify': typeof AuthVerifyRoute
+  '/lookbook/$id': typeof LookbookIdRoute
   '/product/$id': typeof ProductIdRoute
   '/store/$slug': typeof StoreSlugRoute
   '/auth/': typeof AuthIndexRoute
@@ -203,13 +239,16 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/discover'
     | '/explore'
+    | '/lookbooks'
     | '/messages'
     | '/orders'
     | '/profile'
     | '/sell'
     | '/seller'
     | '/shop'
+    | '/social'
     | '/wishlist'
     | '/auth/forgot'
     | '/auth/login'
@@ -217,6 +256,7 @@ export interface FileRouteTypes {
     | '/auth/reset'
     | '/auth/signup'
     | '/auth/verify'
+    | '/lookbook/$id'
     | '/product/$id'
     | '/store/$slug'
     | '/auth/'
@@ -224,13 +264,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cart'
+    | '/discover'
     | '/explore'
+    | '/lookbooks'
     | '/messages'
     | '/orders'
     | '/profile'
     | '/sell'
     | '/seller'
     | '/shop'
+    | '/social'
     | '/wishlist'
     | '/auth/forgot'
     | '/auth/login'
@@ -238,6 +281,7 @@ export interface FileRouteTypes {
     | '/auth/reset'
     | '/auth/signup'
     | '/auth/verify'
+    | '/lookbook/$id'
     | '/product/$id'
     | '/store/$slug'
     | '/auth'
@@ -246,13 +290,16 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/discover'
     | '/explore'
+    | '/lookbooks'
     | '/messages'
     | '/orders'
     | '/profile'
     | '/sell'
     | '/seller'
     | '/shop'
+    | '/social'
     | '/wishlist'
     | '/auth/forgot'
     | '/auth/login'
@@ -260,6 +307,7 @@ export interface FileRouteTypes {
     | '/auth/reset'
     | '/auth/signup'
     | '/auth/verify'
+    | '/lookbook/$id'
     | '/product/$id'
     | '/store/$slug'
     | '/auth/'
@@ -269,14 +317,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   CartRoute: typeof CartRoute
+  DiscoverRoute: typeof DiscoverRoute
   ExploreRoute: typeof ExploreRoute
+  LookbooksRoute: typeof LookbooksRoute
   MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRoute
   SellRoute: typeof SellRoute
   SellerRoute: typeof SellerRoute
   ShopRoute: typeof ShopRoute
+  SocialRoute: typeof SocialRoute
   WishlistRoute: typeof WishlistRoute
+  LookbookIdRoute: typeof LookbookIdRoute
   ProductIdRoute: typeof ProductIdRoute
   StoreSlugRoute: typeof StoreSlugRoute
 }
@@ -288,6 +340,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social': {
+      id: '/social'
+      path: '/social'
+      fullPath: '/social'
+      preLoaderRoute: typeof SocialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -332,11 +391,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lookbooks': {
+      id: '/lookbooks'
+      path: '/lookbooks'
+      fullPath: '/lookbooks'
+      preLoaderRoute: typeof LookbooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/explore': {
       id: '/explore'
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cart': {
@@ -379,6 +452,13 @@ declare module '@tanstack/react-router' {
       path: '/product/$id'
       fullPath: '/product/$id'
       preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lookbook/$id': {
+      id: '/lookbook/$id'
+      path: '/lookbook/$id'
+      fullPath: '/lookbook/$id'
+      preLoaderRoute: typeof LookbookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/verify': {
@@ -452,14 +532,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   CartRoute: CartRoute,
+  DiscoverRoute: DiscoverRoute,
   ExploreRoute: ExploreRoute,
+  LookbooksRoute: LookbooksRoute,
   MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRoute,
   SellRoute: SellRoute,
   SellerRoute: SellerRoute,
   ShopRoute: ShopRoute,
+  SocialRoute: SocialRoute,
   WishlistRoute: WishlistRoute,
+  LookbookIdRoute: LookbookIdRoute,
   ProductIdRoute: ProductIdRoute,
   StoreSlugRoute: StoreSlugRoute,
 }

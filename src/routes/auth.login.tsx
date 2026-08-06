@@ -7,9 +7,10 @@ import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Lock } from "lucide-react";
 import { Field } from "./auth.signup";
 
 export const Route = createFileRoute("/auth/login")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
+      ? { next: s.next }
+      : {},
   component: LoginPage,
 });
 

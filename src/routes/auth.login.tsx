@@ -7,11 +7,15 @@ import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Lock } from "lucide-react";
 import { Field } from "./auth.signup";
 
 export const Route = createFileRoute("/auth/login")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
+  }),
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remember, setRemember] = useState(true);
@@ -37,6 +41,7 @@ function LoginPage() {
       if (error) throw error;
       localStorage.setItem("maelove:remember", remember ? "1" : "0");
       toast.success("Welcome back");
+      if (next) { window.location.href = next; return; }
       navigate({ to: "/" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Sign in failed";

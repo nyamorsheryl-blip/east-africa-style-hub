@@ -17,6 +17,7 @@ import { Route as SellRouteImport } from './routes/sell'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LookbooksRouteImport } from './routes/lookbooks'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DiscoverRouteImport } from './routes/discover'
@@ -33,6 +34,9 @@ import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthOnboardingRouteImport } from './routes/auth.onboarding'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
 const WishlistRoute = WishlistRouteImport.update({
@@ -73,6 +77,11 @@ const OrdersRoute = OrdersRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LookbooksRoute = LookbooksRouteImport.update({
@@ -155,6 +164,24 @@ const AuthForgotRoute = AuthForgotRouteImport.update({
   path: '/forgot',
   getParentRoute: () => AuthRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -168,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/lookbooks': typeof LookbooksRoute
+  '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
@@ -176,6 +204,8 @@ export interface FileRoutesByFullPath {
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
   '/wishlist': typeof WishlistRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/onboarding': typeof AuthOnboardingRoute
@@ -187,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/store/$slug': typeof StoreSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,6 +225,7 @@ export interface FileRoutesByTo {
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/lookbooks': typeof LookbooksRoute
+  '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
@@ -202,6 +234,8 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
   '/wishlist': typeof WishlistRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/onboarding': typeof AuthOnboardingRoute
@@ -213,6 +247,7 @@ export interface FileRoutesByTo {
   '/store/$slug': typeof StoreSlugRoute
   '/auth': typeof AuthIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -222,6 +257,7 @@ export interface FileRoutesById {
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/lookbooks': typeof LookbooksRoute
+  '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
@@ -230,6 +266,8 @@ export interface FileRoutesById {
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
   '/wishlist': typeof WishlistRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/onboarding': typeof AuthOnboardingRoute
@@ -241,6 +279,7 @@ export interface FileRoutesById {
   '/store/$slug': typeof StoreSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -251,6 +290,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/explore'
     | '/lookbooks'
+    | '/mcp'
     | '/messages'
     | '/orders'
     | '/profile'
@@ -259,6 +299,8 @@ export interface FileRouteTypes {
     | '/shop'
     | '/social'
     | '/wishlist'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/forgot'
     | '/auth/login'
     | '/auth/onboarding'
@@ -270,6 +312,7 @@ export interface FileRouteTypes {
     | '/store/$slug'
     | '/auth/'
     | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -277,6 +320,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/explore'
     | '/lookbooks'
+    | '/mcp'
     | '/messages'
     | '/orders'
     | '/profile'
@@ -285,6 +329,8 @@ export interface FileRouteTypes {
     | '/shop'
     | '/social'
     | '/wishlist'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/forgot'
     | '/auth/login'
     | '/auth/onboarding'
@@ -296,6 +342,7 @@ export interface FileRouteTypes {
     | '/store/$slug'
     | '/auth'
     | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
   id:
     | '__root__'
     | '/'
@@ -304,6 +351,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/explore'
     | '/lookbooks'
+    | '/mcp'
     | '/messages'
     | '/orders'
     | '/profile'
@@ -312,6 +360,8 @@ export interface FileRouteTypes {
     | '/shop'
     | '/social'
     | '/wishlist'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/forgot'
     | '/auth/login'
     | '/auth/onboarding'
@@ -323,6 +373,7 @@ export interface FileRouteTypes {
     | '/store/$slug'
     | '/auth/'
     | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -332,6 +383,7 @@ export interface RootRouteChildren {
   DiscoverRoute: typeof DiscoverRoute
   ExploreRoute: typeof ExploreRoute
   LookbooksRoute: typeof LookbooksRoute
+  McpRoute: typeof McpRoute
   MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRoute
@@ -340,10 +392,13 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRoute
   SocialRoute: typeof SocialRoute
   WishlistRoute: typeof WishlistRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   LookbookIdRoute: typeof LookbookIdRoute
   ProductIdRoute: typeof ProductIdRoute
   StoreSlugRoute: typeof StoreSlugRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -402,6 +457,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lookbooks': {
@@ -516,6 +578,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -555,6 +638,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiscoverRoute: DiscoverRoute,
   ExploreRoute: ExploreRoute,
   LookbooksRoute: LookbooksRoute,
+  McpRoute: McpRoute,
   MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRoute,
@@ -563,10 +647,14 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRoute,
   SocialRoute: SocialRoute,
   WishlistRoute: WishlistRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   LookbookIdRoute: LookbookIdRoute,
   ProductIdRoute: ProductIdRoute,
   StoreSlugRoute: StoreSlugRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

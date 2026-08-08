@@ -135,6 +135,8 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
           )}
         </div>
       </div>
+      <QuickView id={p.id} open={quick} onClose={() => setQuick(false)} />
+
     </div>
   );
 }

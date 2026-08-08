@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Eye } from "lucide-react";
 import { formatMoney } from "@/lib/format";
 import { useWishlist } from "@/lib/wishlist-hook";
+import { QuickView } from "@/components/ml/quick-view";
+
 
 export type ProductCardData = {
   id: string;

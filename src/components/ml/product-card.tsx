@@ -34,6 +34,8 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
   const price = p.sale_price_cents ?? p.price_cents;
   const { isSaved, toggle } = useWishlist();
   const saved = isSaved(p.id);
+  const [quick, setQuick] = useState(false);
+
   const store = p.store ?? p.boutique;
   const off =
     p.sale_price_cents && p.price_cents > p.sale_price_cents

@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Eye } from "lucide-react";
 import { formatMoney } from "@/lib/format";
 import { useWishlist } from "@/lib/wishlist-hook";
+import { QuickView } from "@/components/ml/quick-view";
+
 
 export type ProductCardData = {
   id: string;
@@ -32,6 +34,8 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
   const price = p.sale_price_cents ?? p.price_cents;
   const { isSaved, toggle } = useWishlist();
   const saved = isSaved(p.id);
+  const [quick, setQuick] = useState(false);
+
   const store = p.store ?? p.boutique;
   const off =
     p.sale_price_cents && p.price_cents > p.sale_price_cents
@@ -95,7 +99,20 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
         >
           <Heart className="h-4 w-4" fill={saved ? "currentColor" : "none"} />
         </button>
+        <button
+          type="button"
+          aria-label={`Quick view ${p.title}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setQuick(true);
+          }}
+          className="press absolute bottom-3 right-3 flex h-9 items-center gap-1.5 rounded-full bg-card/85 px-3 text-[10px] font-extrabold backdrop-blur-md"
+        >
+          <Eye className="h-3.5 w-3.5" /> Quick view
+        </button>
       </Link>
+
 
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         {store && (
@@ -118,6 +135,8 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
           )}
         </div>
       </div>
+      <QuickView id={p.id} open={quick} onClose={() => setQuick(false)} />
+
     </div>
   );
 }

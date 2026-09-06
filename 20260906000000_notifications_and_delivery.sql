@@ -1,13 +1,17 @@
--- Add delivery role support (reuses existing role column/check on profiles)
--- Adjust this if your profiles.role is an enum type rather than text
+-- Role flags (kept alongside existing role column, no breaking changes)
 alter table profiles
   drop constraint if exists profiles_role_check;
 
 alter table profiles
-  add constraint profiles_role_check
-  check (role in ('shopper', 'seller', 'delivery', 'admin'));
+  add column if not exists is_seller boolean not null default false;
 
--- Delivery agent details (extra fields beyond profiles)
+alter table profiles
+  add column if not exists is_delivery boolean not null default false;
+
+update profiles set is_seller = true where role in ('seller', 'both');
+update profiles set is_delivery = true where role = 'delivery';
+
+-- Delivery agent details
 create table if not exists delivery_agents (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade unique,
@@ -39,7 +43,7 @@ alter table orders
 create table if not exists notifications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  type text not null, -- e.g. 'new_order', 'order_status', 'low_stock', 'return_submitted', 'return_resolved', 'delivery_assigned'
+  type text not null,
   title text not null,
   body text,
   related_order_id uuid references orders(id),
@@ -151,4 +155,3 @@ drop trigger if exists trg_notify_return_resolved on returns;
 create trigger trg_notify_return_resolved
   after update on returns
   for each row execute function notify_return_resolved();
-  

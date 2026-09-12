@@ -6,7 +6,7 @@ import { signUpSchema, passwordStrength } from "@/lib/auth-schemas";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2, ArrowLeft, Mail, User, AtSign, Lock, CheckCircle2, AlertCircle } from "lucide-react";
 
-const search = z.object({ intent: z.enum(["shop", "sell"]).optional() });
+const search = z.object({ intent: z.enum(["shop", "sell", "deliver"]).optional() });
 
 export const Route = createFileRoute("/auth/signup")({
   component: SignUpPage,
@@ -95,7 +95,7 @@ function SignUpPage() {
       </Link>
       <h1 className="mt-3 font-display text-2xl font-black">Create your account</h1>
       <p className="text-sm text-muted-foreground">
-        {intent === "sell" ? "Set up your boutique in a few taps." : "Shop, sell and connect across East Africa."}
+        {intent === "sell" ? "Set up your boutique in a few taps." : intent === "deliver" ? "Sign up to start delivering and earning." : "Shop, sell and connect across East Africa."}
       </p>
 
       <form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>

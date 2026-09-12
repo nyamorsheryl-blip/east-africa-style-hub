@@ -67,70 +67,95 @@ async function fetchRemote(userId: string): Promise<CartItem[]> {
  */
 export function useCart() {
   const { user } = useSession();
+  const userId = user?.id;
   const [items, setItems] = useState<CartItem[]>([]);
   const merged = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!user) { setItems(read()); return; }
-    try { setItems(await fetchRemote(user.id)); } catch { /* keep last known */ }
-  }, [user]);
+    if (!userId) { setItems(read()); return; }
+    try { setItems(await fetchRemote(userId)); } catch { /* keep last known */ }
+  }, [userId]);
+
+  // Always call the latest refresh from stable effects below, without making
+  // refresh itself a dependency (its identity can still change harmlessly).
+  const refreshRef = useRef(refresh);
+  useEffect(() => { refreshRef.current = refresh; }, [refresh]);
 
   // Local (guest) cart events
   useEffect(() => {
-    if (user) return;
+    if (userId) return;
     setItems(read());
     const on = () => setItems(read());
     window.addEventListener("maelove:cart", on);
     window.addEventListener("storage", on);
     return () => { window.removeEventListener("maelove:cart", on); window.removeEventListener("storage", on); };
-  }, [user]);
+  }, [userId]);
 
-  // Remote cart: load + merge guest bag once per user
+  // Remote cart: load once + merge any guest bag, keyed only on the user id
+  // so it doesn't re-run just because `user` or `refresh` got a new identity.
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     let cancelled = false;
     (async () => {
       const guest = read();
-      if (guest.length && merged.current !== user.id) {
-        merged.current = user.id;
+      if (guest.length && merged.current !== userId) {
+        merged.current = userId;
         try {
-          const remote = await fetchRemote(user.id);
+          const remote = await fetchRemote(userId);
           for (const g of guest) {
             const existing = remote.find((r) => r.productId === g.productId);
             await supabase.from("cart_items").upsert(
-              { user_id: user.id, product_id: g.productId, quantity: (existing?.quantity ?? 0) + g.quantity },
+              { user_id: userId, product_id: g.productId, quantity: (existing?.quantity ?? 0) + g.quantity },
               { onConflict: "user_id,product_id" },
             );
           }
           localStorage.removeItem(KEY);
         } catch { /* ignore merge failure */ }
       }
-      if (!cancelled) await refresh();
+      if (!cancelled) await refreshRef.current();
     })();
-    const on = () => { void refresh(); };
+    const on = () => { void refreshRef.current(); };
     window.addEventListener("maelove:cart", on);
-
-    // Live updates: any change to this shopper's cart rows, or to a product
-    // in it (price, stock, published), refreshes badge + totals instantly.
-    const channel = supabase
-      .channel(`cart-${user.id}`)
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "cart_items", filter: `user_id=eq.${user.id}` },
-        () => { void refresh(); })
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "products" },
-        () => { void refresh(); })
-      .subscribe();
-
     return () => {
       cancelled = true;
       window.removeEventListener("maelove:cart", on);
+    };
+  }, [userId]);
+
+  // Live updates: any change to this shopper's cart rows, or to a product in
+  // it (price, stock, published), refreshes badge + totals instantly.
+  // Kept in its own effect, keyed only on the user id, so it is created
+  // exactly once per login and torn down exactly once per logout — no
+  // rebuild races with an in-flight subscribe() on the same channel name.
+    useEffect(() => {
+    if (!userId) return;
+
+    const topic = `cart-${userId}`;
+
+    // In dev, React's Strict Mode runs this effect's setup twice in a row
+    // before the first cleanup has finished removing the old channel. If we
+    // blindly created a new channel every time, the second run could end up
+    // attaching new .on() listeners to a channel that's already subscribed,
+    // which is exactly the error this guard avoids: reuse the existing
+    // channel for this user instead of creating a duplicate.
+    const existing = supabase.getChannels().find((c) => c.topic === `realtime:${topic}`);
+    const channel = existing ?? supabase
+      .channel(topic)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "cart_items", filter: `user_id=eq.${userId}` },
+        () => { void refreshRef.current(); })
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "products" },
+        () => { void refreshRef.current(); })
+      .subscribe();
+
+    return () => {
       void supabase.removeChannel(channel);
     };
-  }, [user, refresh]);
+  }, [userId]);
 
   const add = useCallback(async (item: Omit<CartItem, "quantity">, qty = 1) => {
-    if (!user) {
+    if (!userId) {
       const cur = read();
       const ex = cur.find((c) => c.productId === item.productId);
       if (ex) ex.quantity += qty; else cur.push({ ...item, quantity: qty });
@@ -142,36 +167,36 @@ export function useCart() {
       ? prev.map((c) => c.productId === item.productId ? { ...c, quantity: c.quantity + qty } : c)
       : [...prev, { ...item, quantity: qty }]);
     await supabase.from("cart_items").upsert(
-      { user_id: user.id, product_id: item.productId, quantity: (existing?.quantity ?? 0) + qty },
+      { user_id: userId, product_id: item.productId, quantity: (existing?.quantity ?? 0) + qty },
       { onConflict: "user_id,product_id" },
     );
     await refresh();
-  }, [user, items, refresh]);
+  }, [userId, items, refresh]);
 
   const remove = useCallback(async (productId: string) => {
-    if (!user) { write(read().filter((c) => c.productId !== productId)); return; }
+    if (!userId) { write(read().filter((c) => c.productId !== productId)); return; }
     setItems((prev) => prev.filter((c) => c.productId !== productId));
-    await supabase.from("cart_items").delete().eq("user_id", user.id).eq("product_id", productId);
+    await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", productId);
     await refresh();
-  }, [user, refresh]);
+  }, [userId, refresh]);
 
   const setQty = useCallback(async (productId: string, qty: number) => {
     const next = Math.max(1, qty);
-    if (!user) {
+    if (!userId) {
       write(read().map((c) => c.productId === productId ? { ...c, quantity: next } : c));
       return;
     }
     setItems((prev) => prev.map((c) => c.productId === productId ? { ...c, quantity: next } : c));
-    await supabase.from("cart_items").update({ quantity: next }).eq("user_id", user.id).eq("product_id", productId);
+    await supabase.from("cart_items").update({ quantity: next }).eq("user_id", userId).eq("product_id", productId);
     await refresh();
-  }, [user, refresh]);
+  }, [userId, refresh]);
 
   const clear = useCallback(async () => {
-    if (!user) { write([]); return; }
+    if (!userId) { write([]); return; }
     setItems([]);
-    await supabase.from("cart_items").delete().eq("user_id", user.id);
+    await supabase.from("cart_items").delete().eq("user_id", userId);
     await refresh();
-  }, [user, refresh]);
+  }, [userId, refresh]);
 
   const available = items.filter((i) => !i.unavailable);
 
@@ -179,7 +204,7 @@ export function useCart() {
     items,
     available,
     unavailable: items.filter((i) => i.unavailable),
-    synced: !!user,
+    synced: !!userId,
     add,
     remove,
     setQty,

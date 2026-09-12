@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as DeliveryRouteImport } from './routes/delivery'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as LookbooksRouteImport } from './routes/lookbooks'
@@ -60,6 +61,11 @@ const AuthRoute = AuthRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeliveryRoute = DeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
+  '/delivery': typeof DeliveryRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/lookbooks': typeof LookbooksRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/cart': typeof CartRoute
+  '/delivery': typeof DeliveryRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/lookbooks': typeof LookbooksRoute
@@ -279,6 +287,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
+  '/delivery': typeof DeliveryRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/lookbooks': typeof LookbooksRoute
@@ -315,6 +324,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/cart'
+    | '/delivery'
     | '/discover'
     | '/explore'
     | '/lookbooks'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/delivery'
     | '/discover'
     | '/explore'
     | '/lookbooks'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/cart'
+    | '/delivery'
     | '/discover'
     | '/explore'
     | '/lookbooks'
@@ -417,6 +429,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
   CartRoute: typeof CartRoute
+  DeliveryRoute: typeof DeliveryRoute
   DiscoverRoute: typeof DiscoverRoute
   ExploreRoute: typeof ExploreRoute
   LookbooksRoute: typeof LookbooksRoute
@@ -467,6 +480,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delivery': {
+      id: '/delivery'
+      path: '/delivery'
+      fullPath: '/delivery'
+      preLoaderRoute: typeof DeliveryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -705,6 +725,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   CartRoute: CartRoute,
+  DeliveryRoute: DeliveryRoute,
   DiscoverRoute: DiscoverRoute,
   ExploreRoute: ExploreRoute,
   LookbooksRoute: LookbooksRoute,

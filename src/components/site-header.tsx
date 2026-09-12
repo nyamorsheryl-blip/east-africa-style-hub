@@ -2,10 +2,12 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useCart } from "@/lib/cart";
-import { Heart, ShoppingBag, Search, User, LogOut, Store, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Heart, ShoppingBag, Search, User, LogOut, Store, Sparkles, Truck } from "lucide-react";
 import { useState } from "react";
 import { CherryMark } from "@/components/ml/cherry-mark";
 import { ThemeToggle } from "@/components/ml/theme-toggle";
+import { NotificationBell } from "@/components/ml/notification-bell";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
@@ -15,6 +17,19 @@ export function SiteHeader() {
   const { count } = useCart();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile-flags", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("is_seller, is_delivery")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -41,6 +56,12 @@ export function SiteHeader() {
 
         <Link to="/shop" className="hidden md:inline text-sm font-medium hover:text-primary">Shop</Link>
 
+        {!profile?.is_delivery && (
+          <Link to="/auth/signup" search={{ intent: "deliver" } as never} className="hidden md:inline text-sm font-medium hover:text-primary">
+            Deliver & Earn
+          </Link>
+        )}
+
         <ThemeToggle />
 
         <Link to="/wishlist" className="rounded-full p-2 hover:bg-accent/25" aria-label="Wishlist">
@@ -54,11 +75,18 @@ export function SiteHeader() {
           )}
         </Link>
 
+        {user && <NotificationBell userId={user.id} />}
+
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full p-2 hover:bg-accent/25"><User className="h-5 w-5" /></DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem asChild><Link to="/seller"><Store className="h-4 w-4 mr-2" />Seller dashboard</Link></DropdownMenuItem>
+              {profile?.is_seller && (
+                <DropdownMenuItem asChild><Link to="/seller"><Store className="h-4 w-4 mr-2" />Seller dashboard</Link></DropdownMenuItem>
+              )}
+              {profile?.is_delivery && (
+                <DropdownMenuItem asChild><Link to="/delivery"><Truck className="h-4 w-4 mr-2" />Delivery dashboard</Link></DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild><Link to="/orders">My orders</Link></DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}><LogOut className="h-4 w-4 mr-2" />Sign out</DropdownMenuItem>

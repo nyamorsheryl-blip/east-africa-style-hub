@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
@@ -33,24 +33,29 @@ export const Route = createFileRoute("/explore")({
   component: Explore,
 });
 
-const FILTERS = [
-  { label: "Price", options: ["Under $50", "$50–$150", "$150–$300", "$300+"] },
-  { label: "Distance", options: ["< 5 km", "< 25 km", "Nationwide", "Worldwide"] },
-  { label: "Condition", options: ["New", "Pre-loved", "Vintage"] },
-  { label: "Brand", options: ["MaeLove Studio", "Lumière Fine", "Grid Supply", "Zanzi Craft"] },
-  { label: "Colour", options: ["Black", "Cherry", "Blush", "Vanilla", "Gold"] },
-  { label: "Size", options: ["XS", "S", "M", "L", "XL"] },
-  { label: "Seller rating", options: ["4.5+", "4.0+", "Any"] },
-  { label: "Delivery time", options: ["1–3 days", "3–7 days", "7–14 days"] },
-  { label: "Availability", options: ["In stock", "Pre-order"] },
-];
+// Extends the card's display type with the raw fields we need for filtering,
+// without changing what ProductCard itself expects.
+type ExploreProduct = ProductCardData & {
+  colors: string[];
+  sizes: string[];
+  category: string;
+  stock: number;
+  createdAt: string;
+};
+
+const PRICE_BUCKETS: Record<string, [number, number]> = {
+  "Under $50": [0, 5000],
+  "$50–$150": [5000, 15000],
+  "$150–$300": [15000, 30000],
+  "$300+": [30000, Infinity],
+};
 
 const SORTS = ["Recommended", "Newest", "Price: low to high", "Price: high to low", "Top rated"];
 
 function Explore() {
   const { q } = Route.useSearch();
   const [term, setTerm] = useState(q ?? "");
-  const [cat, setCat] = useState(q ?? "All");
+  const [cat, setCat] = useState("All");
   const [sort, setSort] = useState(SORTS[0]);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [selected, setSelected] = useState<Record<string, string>>({});
@@ -58,17 +63,23 @@ function Explore() {
   const { data, isLoading } = useQuery({
     queryKey: ["explore-products"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*, boutiques(name)").eq("published", true).limit(60);
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, boutiques(name)")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(60);
       if (error) throw error;
       return data ?? [];
     },
   });
 
-  const catalog: ProductCardData[] = useMemo(() => {
+  const catalog: ExploreProduct[] = useMemo(() => {
     if (data && data.length > 0) {
       return data.map((r, i) => {
         const row = r as Record<string, unknown>;
         const imgs = (row.images as string[] | null) ?? [];
+        const reviewCount = (row.review_count as number | null) ?? 0;
         return {
           id: row.id as string,
           title: row.title as string,
@@ -77,21 +88,100 @@ function Explore() {
           sale_price_cents: (row.sale_price_cents as number | null) ?? null,
           currency: (row.currency as string) ?? "USD",
           image: imgs[0] ?? DEMO_PRODUCTS[i % DEMO_PRODUCTS.length].image,
-        } satisfies ProductCardData;
+          rating: reviewCount > 0 ? (row.avg_rating as number) : undefined,
+          reviews: reviewCount > 0 ? reviewCount : undefined,
+          colors: (row.colors as string[] | null) ?? [],
+          sizes: (row.sizes as string[] | null) ?? [],
+          category: (row.category as string) ?? "All",
+          stock: (row.stock as number | null) ?? 0,
+          createdAt: (row.created_at as string) ?? new Date().toISOString(),
+        } satisfies ExploreProduct;
       });
     }
-    return DEMO_PRODUCTS.map((p) => ({ ...p }));
+    // Fallback to demo data if the catalog hasn't been seeded yet
+    return DEMO_PRODUCTS.map((p) => ({
+      ...p,
+      colors: [],
+      sizes: [],
+      category: "All",
+      stock: 10,
+      createdAt: new Date().toISOString(),
+    })) as ExploreProduct[];
   }, [data]);
+
+  // Build filter option lists from what's actually in the catalog, so every
+  // filter shown is guaranteed to return results.
+  const dynamicOptions = useMemo(() => {
+    const colours = new Set<string>();
+    const sizes = new Set<string>();
+    const brands = new Set<string>();
+    catalog.forEach((p) => {
+      p.colors.forEach((c) => colours.add(c));
+      p.sizes.forEach((s) => sizes.add(s));
+      if (p.store) brands.add(p.store);
+    });
+    return {
+      colour: Array.from(colours).sort(),
+      size: Array.from(sizes).sort(),
+      brand: Array.from(brands).sort(),
+    };
+  }, [catalog]);
+
+  const FILTERS = useMemo(() => {
+    const groups: { label: string; options: string[] }[] = [
+      { label: "Price", options: Object.keys(PRICE_BUCKETS) },
+    ];
+    if (dynamicOptions.brand.length > 0) groups.push({ label: "Brand", options: dynamicOptions.brand });
+    if (dynamicOptions.colour.length > 0) groups.push({ label: "Colour", options: dynamicOptions.colour });
+    if (dynamicOptions.size.length > 0) groups.push({ label: "Size", options: dynamicOptions.size });
+    groups.push({ label: "Seller rating", options: ["4.5+", "4.0+", "Any"] });
+    groups.push({ label: "Availability", options: ["In stock"] });
+    return groups;
+  }, [dynamicOptions]);
 
   const results = useMemo(() => {
     let out = catalog;
+
+    if (cat !== "All") {
+      out = out.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
+    }
+
     const t = term.trim().toLowerCase();
     if (t) out = out.filter((p) => p.title.toLowerCase().includes(t) || (p.store ?? "").toLowerCase().includes(t));
+
+    const priceSel = selected["Price"];
+    if (priceSel) {
+      const [min, max] = PRICE_BUCKETS[priceSel] ?? [0, Infinity];
+      out = out.filter((p) => {
+        const price = p.sale_price_cents ?? p.price_cents;
+        return price >= min && price < max;
+      });
+    }
+
+    const brandSel = selected["Brand"];
+    if (brandSel) out = out.filter((p) => p.store === brandSel);
+
+    const colourSel = selected["Colour"];
+    if (colourSel) out = out.filter((p) => p.colors.includes(colourSel));
+
+    const sizeSel = selected["Size"];
+    if (sizeSel) out = out.filter((p) => p.sizes.includes(sizeSel));
+
+    const ratingSel = selected["Seller rating"];
+    if (ratingSel && ratingSel !== "Any") {
+      const min = parseFloat(ratingSel);
+      out = out.filter((p) => (p.rating ?? 0) >= min);
+    }
+
+    if (selected["Availability"] === "In stock") out = out.filter((p) => p.stock > 0);
+
+    if (sort === "Newest") out = [...out].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
     if (sort === "Price: low to high") out = [...out].sort((a, b) => (a.sale_price_cents ?? a.price_cents) - (b.sale_price_cents ?? b.price_cents));
     if (sort === "Price: high to low") out = [...out].sort((a, b) => (b.sale_price_cents ?? b.price_cents) - (a.sale_price_cents ?? a.price_cents));
     if (sort === "Top rated") out = [...out].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+
     return out;
-  }, [catalog, term, sort]);
+  }, [catalog, term, cat, selected, sort]);
 
   const activeCount = Object.keys(selected).length;
 
@@ -174,7 +264,7 @@ function Explore() {
       </div>
 
       <div className="mt-3 px-5 text-[12px] text-muted-foreground">
-        {results.length} results {term && <>for “{term}”</>}
+        {results.length} results {term && <>for "{term}"</>}
       </div>
 
       <div className="mt-4">
@@ -184,8 +274,12 @@ function Explore() {
           <EmptyState
             icon={<Search className="h-5 w-5" />}
             title="Nothing matched that"
-            copy="Try a different word, or browse trending boutiques on the home feed."
-            action={<Link to="/" className="press glass-cherry rounded-full px-6 py-3 text-sm font-extrabold">Back to home</Link>}
+            copy="Try a different word, or clear filters to see more boutiques."
+            action={
+              <button onClick={() => { setTerm(""); setSelected({}); setCat("All"); }} className="press glass-cherry rounded-full px-6 py-3 text-sm font-extrabold">
+                Clear search & filters
+              </button>
+            }
           />
         ) : view === "grid" ? (
           <div className="grid grid-cols-2 gap-3 px-5">

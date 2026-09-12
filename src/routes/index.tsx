@@ -32,6 +32,7 @@ export const Route = createFileRoute("/")({
 
 function toCard(row: Record<string, unknown>, i: number): ProductCardData {
   const images = (row.images as string[] | null) ?? [];
+  const reviewCount = (row.review_count as number | null) ?? 0;
   return {
     id: row.id as string,
     title: row.title as string,
@@ -41,6 +42,8 @@ function toCard(row: Record<string, unknown>, i: number): ProductCardData {
     currency: (row.currency as string) ?? "USD",
     image: images[0] ?? DEMO_PRODUCTS[i % DEMO_PRODUCTS.length].image,
     badge: row.sale_price_cents ? "SALE" : null,
+    rating: reviewCount > 0 ? (row.avg_rating as number) : undefined,
+    reviews: reviewCount > 0 ? reviewCount : undefined,
   };
 }
 

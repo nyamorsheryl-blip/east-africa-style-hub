@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ShoppingBag, Store, Sparkles, Loader2, Check } from "lucide-react";
+import { ShoppingBag, Store, Sparkles, Truck, Loader2, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -8,12 +8,13 @@ export const Route = createFileRoute("/auth/onboarding")({
   component: OnboardingPage,
 });
 
-type Choice = "shopper" | "seller" | "both";
+type Choice = "shopper" | "seller" | "both" | "delivery";
 
 const OPTIONS: { id: Choice; emoji: string; icon: React.ComponentType<{ className?: string }>; title: string; body: string; grad: string }[] = [
   { id: "shopper",  emoji: "🛍️", icon: ShoppingBag, title: "Shop",             body: "Discover boutique fashion, jewellery and one-of-a-kind pieces.", grad: "linear-gradient(135deg, var(--blush), var(--berry))" },
   { id: "seller", emoji: "🏪", icon: Store,       title: "Open a boutique",  body: "List products, manage orders, get paid.",                          grad: "linear-gradient(135deg, var(--plum), var(--berry))" },
   { id: "both",   emoji: "✨", icon: Sparkles,    title: "Both",             body: "Shop what you love and sell what you make.",                       grad: "linear-gradient(135deg, var(--berry), var(--lime))" },
+  { id: "delivery", emoji: "🚚", icon: Truck,     title: "Deliver & Earn",   body: "Deliver orders in your area and get paid per drop-off.",           grad: "linear-gradient(135deg, var(--lime), var(--plum))" },
 ];
 
 function OnboardingPage() {
@@ -31,36 +32,56 @@ function OnboardingPage() {
     const intent = sessionStorage.getItem("maelove:intent");
     if (intent === "sell") setChoice("seller");
     else if (intent === "shop") setChoice("shopper");
+    else if (intent === "deliver") setChoice("delivery");
   }, [navigate]);
 
   async function save() {
     if (!choice || !userId) return;
     setSaving(true);
     try {
-      const { error: roleErr } = await supabase
-        .from("profiles")
-        .update({ role: choice })
-        .eq("id", userId);
-      if (roleErr) throw roleErr;
+      if (choice === "delivery") {
+        // Delivery signups keep the default buyer role and just flip the delivery flag
+        const { error: flagErr } = await supabase
+          .from("profiles")
+          .update({ is_delivery: true })
+          .eq("id", userId);
+        if (flagErr) throw flagErr;
 
-      // Create boutique shell if seller or both
-      if (choice === "seller" || choice === "both") {
-        const { data: existing } = await supabase.from("boutiques").select("id").eq("owner_id", userId).maybeSingle();
-        if (!existing) {
-          const { data: prof } = await supabase.from("profiles").select("full_name, username").eq("id", userId).maybeSingle();
-          const { error: bErr } = await supabase.from("boutiques").insert({
-            owner_id: userId,
-            name: prof?.full_name ? `${prof.full_name}'s boutique` : `@${prof?.username ?? "boutique"}`,
-            slug: `${prof?.username ?? userId.slice(0, 8)}-${Date.now().toString(36)}`,
-          });
-          if (bErr) throw bErr;
+        const { data: existingAgent } = await supabase
+          .from("delivery_agents")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (!existingAgent) {
+          const { error: agentErr } = await supabase.from("delivery_agents").insert({ user_id: userId });
+          if (agentErr) throw agentErr;
+        }
+      } else {
+        const { error: roleErr } = await supabase
+          .from("profiles")
+          .update({ role: choice, is_seller: choice === "seller" || choice === "both" })
+          .eq("id", userId);
+        if (roleErr) throw roleErr;
+
+        // Create boutique shell if seller or both
+        if (choice === "seller" || choice === "both") {
+          const { data: existing } = await supabase.from("boutiques").select("id").eq("owner_id", userId).maybeSingle();
+          if (!existing) {
+            const { data: prof } = await supabase.from("profiles").select("full_name, username").eq("id", userId).maybeSingle();
+            const { error: bErr } = await supabase.from("boutiques").insert({
+              owner_id: userId,
+              name: prof?.full_name ? `${prof.full_name}'s boutique` : `@${prof?.username ?? "boutique"}`,
+              slug: `${prof?.username ?? userId.slice(0, 8)}-${Date.now().toString(36)}`,
+            });
+            if (bErr) throw bErr;
+          }
         }
       }
 
       sessionStorage.removeItem("maelove:intent");
       setSuccess(true);
       setTimeout(() => {
-        navigate({ to: choice === "shopper" ? "/" : "/seller" });
+        navigate({ to: choice === "shopper" ? "/" : choice === "delivery" ? "/delivery" : "/seller" });
       }, 1200);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save your choice");

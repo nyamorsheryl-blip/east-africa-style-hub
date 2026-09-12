@@ -73,8 +73,6 @@ export const AI_PLACEHOLDERS = [
   { title: "AI Stylist", copy: "Describe an occasion, get a full look", emoji: "✨" },
   { title: "Virtual Stylist", copy: "A personal edit, refreshed weekly", emoji: "🧑‍🎨" },
   { title: "Complete the Outfit", copy: "Shoes, bag and jewellery in one tap", emoji: "🧵" },
-  { title: "Body Scan", copy: "Your measurements, remembered", emoji: "📐" },
-  { title: "Virtual Try-On", copy: "See the drape before you buy", emoji: "🪞" },
   { title: "Perfect Size Prediction", copy: "No more guessing between S and M", emoji: "🎯" },
   { title: "Colour Recommendations", copy: "Shades tuned to your palette", emoji: "🎨" },
   { title: "Occasion Recommendations", copy: "Weddings, work, weekends", emoji: "🥂" },

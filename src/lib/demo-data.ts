@@ -72,7 +72,6 @@ export const FUTURE_LANES = [
 
 export const AI_FEATURES = [
   { title: "AI Shopping Assistant", copy: "Ask for a look, get a full basket", emoji: "✨" },
-  { title: "Virtual Try-On", copy: "See the fit before you buy", emoji: "🪞" },
   { title: "AI Size Recommendation", copy: "Your measurements, remembered", emoji: "📐" },
   { title: "Outfit Generator", copy: "Style a week in one tap", emoji: "🧵" },
 ];

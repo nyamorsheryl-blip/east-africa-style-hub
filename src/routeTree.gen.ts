@@ -20,12 +20,14 @@ import { Route as LookbooksRouteImport } from './routes/lookbooks'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SocialRouteImport } from './routes/social'
+import { Route as ThriftRouteImport } from './routes/thrift'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -98,6 +100,11 @@ const OrdersRoute = OrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -126,6 +133,11 @@ const ShopRoute = ShopRouteImport.update({
 const SocialRoute = SocialRouteImport.update({
   id: '/social',
   path: '/social',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThriftRoute = ThriftRouteImport.update({
+  id: '/thrift',
+  path: '/thrift',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -224,12 +236,14 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -258,12 +272,14 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -294,12 +310,14 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -331,12 +349,14 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/messages'
     | '/orders'
+    | '/privacy'
     | '/profile'
     | '/sell'
     | '/seller'
     | '/settings'
     | '/shop'
     | '/social'
+    | '/thrift'
     | '/wishlist'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -365,12 +385,14 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/messages'
     | '/orders'
+    | '/privacy'
     | '/profile'
     | '/sell'
     | '/seller'
     | '/settings'
     | '/shop'
     | '/social'
+    | '/thrift'
     | '/wishlist'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -400,12 +422,14 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/messages'
     | '/orders'
+    | '/privacy'
     | '/profile'
     | '/sell'
     | '/seller'
     | '/settings'
     | '/shop'
     | '/social'
+    | '/thrift'
     | '/wishlist'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -436,12 +460,14 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   SellRoute: typeof SellRoute
   SellerRoute: typeof SellerRoute
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   SocialRoute: typeof SocialRoute
+  ThriftRoute: typeof ThriftRoute
   WishlistRoute: typeof WishlistRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -531,6 +557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -571,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/social'
       fullPath: '/social'
       preLoaderRoute: typeof SocialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/thrift': {
+      id: '/thrift'
+      path: '/thrift'
+      fullPath: '/thrift'
+      preLoaderRoute: typeof ThriftRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -732,12 +772,14 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   SellRoute: SellRoute,
   SellerRoute: SellerRoute,
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   SocialRoute: SocialRoute,
+  ThriftRoute: ThriftRoute,
   WishlistRoute: WishlistRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

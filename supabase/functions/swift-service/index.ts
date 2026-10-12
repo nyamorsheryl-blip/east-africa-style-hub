@@ -1,9 +1,10 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const BASE = "https://sandbox.safaricom.co.ke";
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type, x-test-key",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-test-key",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {

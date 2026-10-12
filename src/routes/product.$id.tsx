@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist-hook";
+import { useSession } from "@/hooks/use-session";
+import { recordView } from "@/lib/recently-viewed";
 import { Section, Rail } from "@/components/ml/section";
 import { ProductCard } from "@/components/ml/product-card";
 import { Skeleton } from "@/components/ml/states";
@@ -39,17 +41,20 @@ function ProductPage() {
   const { id } = Route.useParams();
   const cart = useCart();
   const { isSaved, toggle } = useWishlist();
+  const { user } = useSession();
+  const navigate = useNavigate();
   const [colour, setColour] = useState(SWATCHES[0].name);
   const [size, setSize] = useState<string | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [added, setAdded] = useState(false);
+  const [asking, setAsking] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*, boutiques(name, slug, city, country, verified)")
+        .select("*, boutiques(id, name, slug, city, country, verified)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -62,6 +67,12 @@ function ProductPage() {
     const t = window.setTimeout(() => setAdded(false), 1400);
     return () => window.clearTimeout(t);
   }, [added]);
+
+  // Only record real products (not the demo fallback) as a view, so
+  // "Recently viewed" on the homepage reflects actual browsing.
+  useEffect(() => {
+    if (data) recordView(id);
+  }, [data, id]);
 
   const demo = DEMO_PRODUCTS.find((p) => id.startsWith(p.id)) ?? DEMO_PRODUCTS[0];
 
@@ -78,7 +89,8 @@ function ProductPage() {
   }
 
   const row = data as Record<string, unknown> | null;
-  const boutique = (row?.boutiques as { name: string; slug: string; city: string | null; country: string; verified: boolean } | null) ?? null;
+  const boutique = (row?.boutiques as { id: string; name: string; slug: string; city: string | null; country: string; verified: boolean } | null) ?? null;
+  const sellerId = (row?.owner_id as string) ?? null;
   const images = ((row?.images as string[] | null) ?? []).filter(Boolean);
   const base = images.length ? images : [demo.image, demo.image, demo.image];
   const slides = [
@@ -101,6 +113,60 @@ function ProductPage() {
   const saved = isSaved(id);
   const sales = 1240 + demo.reviews * 3;
   const trust = 98;
+
+  function handleAddToBag() {
+    cart.add({ productId: id, title, priceCents: price, imageUrl: base[0], sellerId: sellerId ?? "demo" });
+    setAdded(true);
+    toast.success(size ? `Added — size ${size}` : "Added to bag");
+  }
+
+  async function askSeller() {
+    if (!user) {
+      navigate({ to: "/auth/login" });
+      return;
+    }
+    if (!sellerId || sellerId === user.id) {
+      toast.error("This product has no seller to message yet");
+      return;
+    }
+    setAsking(true);
+    try {
+      const { data: existing, error: findErr } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("buyer_id", user.id)
+        .eq("seller_id", sellerId)
+        .maybeSingle();
+      if (findErr) throw findErr;
+
+      let conversationId = existing?.id as string | undefined;
+
+      if (!conversationId) {
+        const { data: created, error: createErr } = await supabase
+          .from("conversations")
+          .insert({ buyer_id: user.id, seller_id: sellerId, boutique_id: boutique?.id ?? null })
+          .select("id")
+          .single();
+        if (createErr) throw createErr;
+        conversationId = created.id as string;
+
+        // Opening message, sharing the product being asked about.
+        await supabase.from("messages").insert({
+          conversation_id: conversationId,
+          sender_id: user.id,
+          kind: "product",
+          product_id: id,
+        });
+      }
+
+      sessionStorage.setItem("ml_open_conversation", conversationId);
+      navigate({ to: "/messages" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't start a chat with this seller");
+    } finally {
+      setAsking(false);
+    }
+  }
 
   return (
     <div className="page-enter min-h-screen pb-36">
@@ -126,8 +192,27 @@ function ProductPage() {
         </div>
       </div>
 
+      {/* Sticky quick-buy bar — pinned just below the gallery as the page scrolls */}
+      <div className="sticky top-0 z-30 px-4 pb-3 pt-3" style={{ background: "linear-gradient(180deg, var(--background) 75%, transparent)" }}>
+        <div className="glass-strong mx-auto flex max-w-lg items-center gap-2 rounded-full p-2 shadow-[var(--shadow-soft)]">
+          <span className="min-w-0 flex-1 truncate pl-3 text-[13px] font-black">{formatMoney(price, currency)}</span>
+          <button
+            onClick={handleAddToBag}
+            className={`press glass flex min-w-0 shrink-0 items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-extrabold ${added ? "pop-in" : ""}`}
+          >
+            <ShoppingBag className="h-4 w-4" /> {added ? "Added" : "Add to bag"}
+          </button>
+          <Link
+            to="/cart"
+            className="press glass-cherry flex min-w-0 shrink-0 items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-extrabold"
+          >
+            <Zap className="h-4 w-4" /> Buy now
+          </Link>
+        </div>
+      </div>
+
       {/* Title + trust */}
-      <div className="rise mx-auto max-w-3xl px-5 pt-7">
+      <div className="rise mx-auto max-w-3xl px-5 pt-2">
         <div className="flex flex-wrap items-center gap-2">
           <Link to="/store/$slug" params={{ slug: storeSlug }} className="press inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary">
             {storeName}
@@ -323,10 +408,11 @@ function ProductPage() {
         </Link>
 
         <button
-          onClick={() => toast.success("Message sent to the boutique")}
-          className="press glass-blush mt-3 inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-[12px] font-extrabold"
+          onClick={() => void askSeller()}
+          disabled={asking}
+          className="press glass-blush mt-3 inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-[12px] font-extrabold disabled:opacity-60"
         >
-          <MessageCircle className="h-3.5 w-3.5" /> Ask the seller
+          <MessageCircle className="h-3.5 w-3.5" /> {asking ? "Opening chat…" : "Ask the seller"}
         </button>
       </div>
 
@@ -370,35 +456,6 @@ function ProductPage() {
         <Link to="/explore" className="press inline-flex min-h-11 items-center gap-1 text-[12px] font-extrabold text-primary">
           Continue shopping <ChevronRight className="h-3.5 w-3.5" />
         </Link>
-      </div>
-
-      {/* Sticky action bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 px-4 pb-5 pt-6" style={{ background: "linear-gradient(0deg, var(--background) 60%, transparent)" }}>
-        <div className="glass-strong mx-auto flex max-w-lg items-center gap-2 rounded-full p-2 shadow-[var(--shadow-soft)]">
-          <button
-            onClick={() => void toggle(id)}
-            aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
-            className={`press grid h-12 w-12 shrink-0 place-items-center rounded-full ${saved ? "bg-primary text-primary-foreground" : "glass"}`}
-          >
-            <Heart className="h-[18px] w-[18px]" fill={saved ? "currentColor" : "none"} />
-          </button>
-          <button
-            onClick={() => {
-              cart.add({ productId: id, title, priceCents: price, imageUrl: base[0], sellerId: (row?.owner_id as string) ?? "demo" });
-              setAdded(true);
-              toast.success(size ? `Added — size ${size}` : "Added to bag");
-            }}
-            className={`press glass flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-[13px] font-extrabold ${added ? "pop-in" : ""}`}
-          >
-            <ShoppingBag className="h-4 w-4" /> {added ? "Added" : "Add to bag"}
-          </button>
-          <Link
-            to="/cart"
-            className="press glass-cherry flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-[13px] font-extrabold"
-          >
-            <Zap className="h-4 w-4" /> Buy now
-          </Link>
-        </div>
       </div>
 
       {/* Size guide */}

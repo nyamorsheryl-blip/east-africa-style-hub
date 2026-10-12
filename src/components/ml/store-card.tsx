@@ -1,18 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { BadgeCheck, Star } from "lucide-react";
+import { BadgeCheck, Star, Sparkles } from "lucide-react";
 
 export type StoreCardData = {
   slug: string;
   name: string;
   city: string;
-  rating: number;
-  followers: string;
-  trust: number;
   image: string;
   verified: boolean;
+  trust: number;
+  /** Omit when there's no real review data yet — shows a "New" badge instead of fabricating a rating. */
+  rating?: number;
+  reviewCount?: number;
+  followers?: string;
 };
 
 export function StoreCard({ s }: { s: StoreCardData }) {
+  const hasRating = s.rating != null && (s.reviewCount ?? 0) > 0;
+
   return (
     <Link
       to="/store/$slug"
@@ -30,10 +34,17 @@ export function StoreCard({ s }: { s: StoreCardData }) {
         </div>
         <div className="mt-0.5 text-[11px] text-muted-foreground">{s.city}</div>
         <div className="mt-3 flex items-center gap-3 text-[11px] font-bold">
-          <span className="flex items-center gap-1">
-            <Star className="h-3 w-3 fill-current" /> {s.rating}
-          </span>
-          <span className="text-muted-foreground">{s.followers} followers</span>
+          {hasRating ? (
+            <span className="flex items-center gap-1">
+              <Star className="h-3 w-3 fill-current" /> {s.rating!.toFixed(1)}
+              <span className="font-medium text-muted-foreground">({s.reviewCount})</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-muted-foreground">
+              <Sparkles className="h-3 w-3" /> New boutique
+            </span>
+          )}
+          {s.followers && <span className="text-muted-foreground">{s.followers}</span>}
         </div>
         <div className="mt-3">
           <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-muted-foreground">

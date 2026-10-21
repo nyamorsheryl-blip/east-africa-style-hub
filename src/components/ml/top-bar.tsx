@@ -3,12 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import {
   Menu, Heart, ShoppingBag, Store, ClipboardList, MessageCircle, Sun, Moon,
-  Home, Compass, Shirt, Settings, LogOut, Sparkles, Truck,
+    Home, Compass, Shirt, Settings, LogOut, Sparkles, Truck, Globe,
 } from "lucide-react";
 import { CherryMark } from "@/components/ml/cherry-mark";
 import { useTheme } from "@/components/ml/theme-toggle";
 import { useSession } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrencyPicker } from "@/components/currency-provider";
+import { getDisplayCurrency } from "@/lib/currency";
 import {
   Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
@@ -22,6 +24,7 @@ export function TopBar({ title }: { title: string }) {
   const { dark, toggle } = useTheme();
   const { user } = useSession();
   const navigate = useNavigate();
+  const { openPicker } = useCurrencyPicker();
 
   const { data: profile } = useQuery({
     queryKey: ["profile-flags", user?.id],
@@ -110,6 +113,15 @@ export function TopBar({ title }: { title: string }) {
                 {dark ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />}
                 {dark ? "Light mode" : "Dark mode"}
               </button>
+              <SheetClose asChild>
+                <button
+                  onClick={() => setTimeout(openPicker, 150)}
+                  className="press flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-bold"
+                >
+                  <Globe className="h-4 w-4 text-primary" />
+                  Currency: {getDisplayCurrency()}
+                </button>
+              </SheetClose>
             </nav>
 
             <div className="mt-2 border-t border-border pt-3">

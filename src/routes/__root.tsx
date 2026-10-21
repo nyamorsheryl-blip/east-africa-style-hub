@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/ml/cookie-banner";
+import { CurrencyProvider } from "@/components/currency-provider";
 
 function NotFoundComponent() {
   return (
@@ -104,7 +105,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+            <CurrencyProvider>
+        <Outlet />
+      </CurrencyProvider>
       <Toaster position="top-center" />
       <CookieBanner />
     </QueryClientProvider>

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Lock, ShieldCheck, AlertCircle } from "lucide-react";
 import { Field } from "./auth.signup";
 
-export const Route = createFileRoute("/admin/login")({
+export const Route = createFileRoute("/admin_/login")({
   component: AdminLoginPage,
 });
 
@@ -94,7 +94,7 @@ function AdminLoginPage() {
               value={form.password}
               onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               className="w-full bg-transparent text-sm outline-none"
-              placeholder="••••••••"
+              placeholder={"\u2022".repeat(8)}
               autoComplete="current-password"
             />
             <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? "Hide password" : "Show password"}>

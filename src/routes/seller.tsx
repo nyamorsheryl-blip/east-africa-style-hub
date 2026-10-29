@@ -8,6 +8,8 @@ import { SiteHeader } from "@/components/site-header";
 
 import { useSession } from "@/hooks/use-session";
 
+import { SellerEarningsCard } from "@/components/seller-earnings-card";
+
 import { CATEGORIES, COUNTRIES, formatMoney, slugify } from "@/lib/format";
 
 import { toast } from "sonner";
@@ -18,7 +20,7 @@ import {
 
   Plus, Store, Trash2, ImagePlus, Package, Sparkles, X,
 
-  Boxes, Receipt, RotateCcw, Percent, Pencil, Check, BadgeCheck, ShieldCheck, Tag,
+  Boxes, Receipt, RotateCcw, Percent, Pencil, Check, BadgeCheck, ShieldCheck, Tag, Wallet,
 
 } from "lucide-react";
 
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/seller")({ component: SellerDash });
 
 
 
-type Tab = "inventory" | "orders" | "returns" | "coupons";
+type Tab = "inventory" | "orders" | "returns" | "coupons" | "earnings";
 
 
 
@@ -191,6 +193,8 @@ function SellerDash() {
           <TabBtn active={tab === "returns"} onClick={() => setTab("returns")} icon={<RotateCcw className="h-4 w-4" />} label="Returns" />
 
           <TabBtn active={tab === "coupons"} onClick={() => setTab("coupons")} icon={<Tag className="h-4 w-4" />} label="Coupons" />
+         
+          <TabBtn active={tab === "earnings"} onClick={() => setTab("earnings")} icon={<Wallet className="h-4 w-4" />} label="Earnings" />
 
         </div>
 
@@ -217,6 +221,8 @@ function SellerDash() {
         {tab === "returns" && <ReturnsTab userId={user.id} />}
 
         {tab === "coupons" && <CouponsTab userId={user.id} />}
+
+        {tab === "earnings" && <SellerEarningsCard boutiqueId={boutique.id} />}
 
       </div>
 

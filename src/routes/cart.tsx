@@ -302,71 +302,16 @@ function CartPage() {
 
     try {
 
-      const { data: order, error: orderErr } = await supabase
-
-        .from("orders")
-
-        .insert({
-
-          buyer_id: user.id,
-
-          total_cents: total,
-
-          currency: "USD",
-
-          shipping_address: { name, phone, addressLine, city },
-
-          coupon_code: appliedCode,
-
-          discount_cents: discount,
-
-        })
-
-        .select()
-
-        .single();
-
-      if (orderErr || !order) throw orderErr ?? new Error("Could not create order");
-
-
-
-      const items = cart.available.map((i) => ({
-
-        order_id: order.id,
-
-        product_id: i.productId,
-
-        seller_id: i.sellerId,
-
-        title: i.title,
-
-        unit_price_cents: i.priceCents,
-
-        quantity: i.quantity,
-
-        image_url: i.imageUrl ?? null,
-
-      }));
-
-      const { error: itemsErr } = await supabase.from("order_items").insert(items);
-
-      if (itemsErr) throw itemsErr;
-
-
-
-      // Redeem each applied coupon now that the order is placed. Guarded
-
-      // server-side against reuse past its limit, so this is safe even if
-
-      // two checkouts race on the same code.
-
-      for (const c of appliedCoupons) {
-
-        await supabase.rpc("redeem_coupon", { p_coupon_id: c.coupon_id });
-
-      }
-
-
+      // The server prices the order, applies the coupon, adds the delivery fee
+      // and records commission, so none of that is trusted from the browser.
+      const { data: placed, error: placeErr } = await (supabase as any).rpc("place_order", {
+        p_items: cart.available.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
+        p_delivery_option: delivery,
+        p_coupon_code: appliedCode ?? null,
+        p_shipping: { name, phone, addressLine, city },
+      });
+      if (placeErr || !placed) throw placeErr ?? new Error("Could not create order");
+      const order = { id: (placed as { order_id: string }).order_id };
 
       setOrderId(order.id);
 

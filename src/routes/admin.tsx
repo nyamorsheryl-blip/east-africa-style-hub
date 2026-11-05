@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { ShieldCheck, Users, Store, Package, Receipt, RotateCcw, BarChart3, Check, X, Loader2, Wallet } from "lucide-react";
 import { PayoutsTab } from "@/components/admin-payouts-tab";
+import { RevenueTab } from "@/components/admin-revenue-tab";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/admin")({ component: AdminDash });
 
-type Tab = "overview" | "sellers" | "products" | "orders" | "customers" | "returns" | "payouts";
+type Tab = "overview" | "sellers" | "products" | "orders" | "customers" | "returns" | "payouts" | "revenue";
 async function logAction(actorId: string, action: string, targetTable: string, targetId: string, details?: object) {
   await supabase.from("audit_log").insert({ actor_id: actorId, action, target_table: targetTable, target_id: targetId, details: details ?? null });
 }
@@ -71,6 +72,7 @@ function AdminDash() {
     { id: "customers", label: "Customers", icon: Users },
     { id: "returns", label: "Returns", icon: RotateCcw },
     { id: "payouts", label: "Payouts", icon: Wallet },
+    { id: "revenue", label: "Revenue", icon: BarChart3 },
   ];
 
   return (
@@ -93,6 +95,7 @@ function AdminDash() {
         {tab === "customers" && <CustomersTab />}
         {tab === "returns" && <ReturnsTab adminId={user.id} />}
         {tab === "payouts" && <PayoutsTab />}
+        {tab === "revenue" && <RevenueTab />}
       </div>
     </div>
   );

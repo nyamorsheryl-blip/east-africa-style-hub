@@ -7,11 +7,11 @@ function formatKes(n: number) {
 }
 
 export function SellerEarningsCard({ boutiqueId }: { boutiqueId: string }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["seller-earnings", boutiqueId],
     refetchInterval: 30000,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("boutique_balances")
         .select("*")
         .eq("boutique_id", boutiqueId)
@@ -29,11 +29,22 @@ export function SellerEarningsCard({ boutiqueId }: { boutiqueId: string }) {
     );
   }
 
-  const owed = Math.floor(Math.max(0, Number(data?.owed_kes ?? 0)));
+  if (isError) {
+    return (
+      <div className="glass rounded-3xl p-6 text-sm text-muted-foreground">
+        Couldn't load your earnings right now. Please refresh in a moment.
+      </div>
+    );
+  }
+
+  const owedRaw = Number(data?.owed_kes ?? 0);
+  const owed = Math.floor(Math.max(0, owedRaw));
+  const clawback = owedRaw < 0 ? Math.ceil(-owedRaw) : 0;
   const earned = Math.round(Number(data?.earned_kes ?? 0));
   const awaiting = Math.round(Number(data?.awaiting_delivery_kes ?? 0));
   const commission = Math.round(Number(data?.commission_kes ?? 0));
   const paidOut = Number(data?.paid_out_kes ?? 0);
+  const returned = Math.round(Number(data?.reversed_kes ?? 0));
 
   return (
     <div className="glass rounded-3xl p-5">
@@ -45,14 +56,23 @@ export function SellerEarningsCard({ boutiqueId }: { boutiqueId: string }) {
       <div className="mt-2 text-xs text-muted-foreground">Amount owed to you</div>
       <div className="text-3xl font-black">{formatKes(owed)}</div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Earnings from delivered orders, after MaeLove commission, minus payouts already sent.
+        Earnings from delivered orders, after MaeLove commission, minus payouts already sent
+        and any returned orders.
       </p>
+
+      {clawback > 0 && (
+        <p className="mt-3 rounded-2xl bg-destructive/10 px-3.5 py-2.5 text-xs font-semibold text-destructive">
+          {formatKes(clawback)} from returned orders was already paid out. It will be deducted
+          from your next payout.
+        </p>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
         <span>Earned: {formatKes(earned)}</span>
         <span>Paid out: {formatKes(paidOut)}</span>
         <span>Awaiting delivery: {formatKes(awaiting)}</span>
         <span>Commission: {formatKes(commission)}</span>
+        <span>Returned: {formatKes(returned)}</span>
       </div>
     </div>
   );

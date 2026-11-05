@@ -32,6 +32,7 @@ type Balance = {
   commission_kes: number;
   paid_out_kes: number;
   owed_kes: number;
+  reversed_kes: number;
 };
 
 export function PayoutsTab() {
@@ -73,6 +74,7 @@ export function PayoutsTab() {
           commission_kes: Number(r.commission_kes ?? 0),
           paid_out_kes: Number(r.paid_out_kes ?? 0),
           owed_kes: Number(r.owed_kes ?? 0),
+          reversed_kes: Number(r.reversed_kes ?? 0),
         }))
         .sort((a: Balance, b: Balance) => b.owed_kes - a.owed_kes);
     },
@@ -195,6 +197,11 @@ export function PayoutsTab() {
                       <div className="text-sm font-bold">{b.name}</div>
                       <div className="mt-1 text-xs text-muted-foreground">Amount owed</div>
                       <div className="text-2xl font-black">{formatKes(payable)}</div>
+                      {b.owed_kes < 0 && (
+                        <div className="mt-1 text-xs font-bold text-destructive">
+                          Clawback: {formatKes(Math.ceil(-b.owed_kes))} paid out on returned orders
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={() => payThisAmount(b)}
@@ -209,6 +216,7 @@ export function PayoutsTab() {
                     <span>Paid out: {formatKes(b.paid_out_kes)}</span>
                     <span>Awaiting delivery: {formatKes(Math.round(b.awaiting_delivery_kes))}</span>
                     <span>Commission: {formatKes(Math.round(b.commission_kes))}</span>
+                    <span>Returned: {formatKes(Math.round(b.reversed_kes))}</span>
                   </div>
                 </div>
               );

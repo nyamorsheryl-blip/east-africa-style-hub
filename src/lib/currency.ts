@@ -1,141 +1,99 @@
+import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// The currency/exchange_rates tables are newer than the generated types, so
-// this file talks to them through an untyped handle until types are regenerated.
-const db = supabase as any;
+export type Currency = { code: string; name: string; symbol: string };
 
-export type CurrencyInfo = { code: string; name: string; symbol: string | null };
-type RateMap = Record<string, number>; // units of each currency per 1 USD
-
-const PREF_KEY = "maelove.currency";
-const CACHE_KEY = "maelove.rates.v1";
-const CACHE_MAX_AGE_MS = 60 * 60 * 1000; // reuse stored rates for 1 hour
-const STALE_AFTER_MS = 6 * 60 * 60 * 1000; // ask the server to refresh after 6 hours
-
-// Module state. Server rendering never changes it, so the server always
-// renders in USD; the browser switches after load.
-let displayCurrency = "USD";
-let rates: RateMap = { USD: 1 };
-let currencies: CurrencyInfo[] = [];
-let version = 0;
-const listeners = new Set<() => void>();
-
-function emit() {
-  version += 1;
-  listeners.forEach((l) => l());
+/** Convert minor units (cents) between two currencies using USD-based rates. */
+export function convertMinor(
+  amountMinor: number,
+  from: string,
+  to: string,
+  ratesPerUsd: Record<string, number>
+): number | null {
+  if (from === to) return amountMinor;
+  const f = ratesPerUsd[from];
+  const t = ratesPerUsd[to];
+  if (!f || !t) return null;
+  return Math.round((amountMinor / f) * t);
 }
 
-export function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-export const getVersion = () => version;
-export const getDisplayCurrency = () => displayCurrency;
-export const getCurrencies = () => currencies;
-
-export function getStoredPreference(): string | null {
+export function formatMinor(amountMinor: number, currency: string): string {
   try {
-    return localStorage.getItem(PREF_KEY);
+    return new Intl.NumberFormat("en", { style: "currency", currency }).format(amountMinor / 100);
   } catch {
-    return null;
+    return `${currency} ${(amountMinor / 100).toFixed(2)}`;
   }
 }
 
-export function setDisplayCurrency(code: string) {
-  displayCurrency = code;
-  try {
-    localStorage.setItem(PREF_KEY, code);
-  } catch {
-    // storage unavailable (private mode); the choice just won't persist
-  }
-  emit();
+export function useRates() {
+  return useQuery({
+    queryKey: ["exchange_rates"],
+    staleTime: 60 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("exchange_rates").select("currency_code, rate_per_usd");
+      if (error) throw error;
+      const map: Record<string, number> = {};
+      for (const r of data ?? []) map[r.currency_code] = Number(r.rate_per_usd);
+      return map;
+    },
+  });
 }
 
-/** Convert an amount in cents between currencies. Returns null if a rate is missing. */
-export function convertCents(cents: number, from: string, to: string): number | null {
-  if (from === to) return cents;
-  const rFrom = rates[from];
-  const rTo = rates[to];
-  if (!rFrom || !rTo) return null;
-  return Math.round((cents * rTo) / rFrom);
+export function useCurrencies() {
+  return useQuery({
+    queryKey: ["currencies"],
+    staleTime: 60 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("currencies")
+        .select("code, name, symbol")
+        .eq("active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as Currency[];
+    },
+  });
 }
 
-type CachePayload = { ts: number; currencies: CurrencyInfo[]; rates: RateMap };
-
-function readCache(): CachePayload | null {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? (JSON.parse(raw) as CachePayload) : null;
-  } catch {
-    return null;
-  }
+/** The logged-in user's saved preferred currency (null if logged out or not set). */
+export function usePreferredCurrency() {
+  return useQuery({
+    queryKey: ["preferred_currency"],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      const uid = sess.session?.user.id;
+      if (!uid) return null;
+      const { data } = await supabase.from("profiles").select("preferred_currency").eq("id", uid).maybeSingle();
+      return (data?.preferred_currency as string | null) ?? null;
+    },
+  });
 }
 
-function apply(payload: { currencies: CurrencyInfo[]; rates: RateMap }) {
-  currencies = payload.currencies;
-  rates = { USD: 1, ...payload.rates };
-}
+/**
+ * Show any price in the buyer's currency.
+ * Buyer's currency = saved preferred currency, else fallbackCurrency
+ * (pass the code from your existing geo hook), else USD.
+ */
+export function useMoney(fallbackCurrency = "USD") {
+  const { data: rates } = useRates();
+  const { data: preferred } = usePreferredCurrency();
+  const display = preferred ?? fallbackCurrency;
 
-/** Fetch currencies and rates from the database. Returns the newest live-rate timestamp. */
-async function fetchFromDatabase(): Promise<number | null> {
-  const [cur, rt] = await Promise.all([
-    db.from("currencies").select("code, name, symbol").eq("active", true).order("sort_order"),
-    db.from("exchange_rates").select("currency_code, rate_per_usd, source, updated_at"),
-  ]);
-  if (cur.error || rt.error || !cur.data?.length || !rt.data?.length) {
-    throw new Error("could not load currency data");
-  }
-  const map: RateMap = {};
-  let newestLive = 0;
-  for (const row of rt.data) {
-    map[row.currency_code] = Number(row.rate_per_usd);
-    if (row.source !== "seed") {
-      newestLive = Math.max(newestLive, new Date(row.updated_at).getTime());
-    }
-  }
-  const payload = { currencies: cur.data as CurrencyInfo[], rates: map };
-  apply(payload);
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), ...payload }));
-  } catch {
-    // ignore
-  }
-  return newestLive || null;
-}
+  const convert = useCallback(
+    (amountMinor: number, from = "USD", to = display) =>
+      rates ? convertMinor(amountMinor, from, to, rates) : null,
+    [rates, display]
+  );
 
-async function loadRates() {
-  const cached = readCache();
-  if (cached && Date.now() - cached.ts < CACHE_MAX_AGE_MS) {
-    apply(cached);
-    return;
-  }
-  try {
-    const newestLive = await fetchFromDatabase();
-    // If the stored rates are old, ask the server to refresh them (it only
-    // actually fetches if they are over an hour old), then reload once.
-    if (!newestLive || Date.now() - newestLive > STALE_AFTER_MS) {
-      try {
-        const { data } = await supabase.functions.invoke("refresh-rates");
-        if (data?.refreshed) {
-          await fetchFromDatabase();
-        }
-      } catch {
-        // keep the rates we already have
-      }
-    }
-  } catch {
-    if (cached) apply(cached);
-  }
-}
+  const format = useCallback(
+    (amountMinor: number, from = "USD") => {
+      const converted = rates ? convertMinor(amountMinor, from, display, rates) : null;
+      return converted === null ? formatMinor(amountMinor, from) : formatMinor(converted, display);
+    },
+    [rates, display]
+  );
 
-/** Run once in the browser on startup. */
-export async function initCurrency(): Promise<{ hasPreference: boolean }> {
-  const stored = getStoredPreference();
-  await loadRates();
-  const supported = currencies.some((c) => c.code === stored);
-  if (stored && supported) displayCurrency = stored;
-  emit();
-  return { hasPreference: !!stored && supported };
+  return { display, convert, format, ready: !!rates };
 }

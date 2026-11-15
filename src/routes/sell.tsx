@@ -7,7 +7,7 @@ import { BottomNav } from "@/components/ml/bottom-nav";
 import { TopBar } from "@/components/ml/top-bar";
 import { Section, Rail } from "@/components/ml/section";
 import { DEMO_PRODUCTS } from "@/lib/demo-data";
-import { formatMoney } from "@/lib/format";
+import Price from "@/components/Price";
 
 export const Route = createFileRoute("/sell")({
   head: () => ({
@@ -126,7 +126,7 @@ function Sell() {
               <img src={p.image} alt={p.title} loading="lazy" className="aspect-[4/5] w-full object-cover" />
               <div className="p-3">
                 <div className="line-clamp-2 text-[12px] font-bold leading-snug">{p.title}</div>
-                <div className="mt-1.5 text-sm font-black">{formatMoney(p.sale_price_cents ?? p.price_cents)}</div>
+                <div className="mt-1.5 text-sm font-black"><Price cents={p.sale_price_cents ?? p.price_cents} /></div>
                 <div className="mt-1 text-[11px] text-muted-foreground">{p.reviews} sold</div>
               </div>
             </div>

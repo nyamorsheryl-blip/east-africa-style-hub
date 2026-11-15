@@ -7,7 +7,7 @@ import {
   X, Heart, ShoppingBag, Star, ChevronLeft, ChevronRight, Play, Minus, Plus, ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatMoney } from "@/lib/format";
+import Price from "@/components/Price";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist-hook";
 import { DEMO_PRODUCTS } from "@/lib/demo-data";
@@ -168,10 +168,10 @@ export function QuickView({ id, open, onClose }: { id: string; open: boolean; on
           </div>
 
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black">{formatMoney(price, currency)}</span>
+            <span className="text-2xl font-black"><Price cents={price} currency={currency} /></span>
             {off > 0 && (
               <>
-                <span className="text-sm text-muted-foreground line-through">{formatMoney(listPrice, currency)}</span>
+                <span className="text-sm text-muted-foreground line-through"><Price cents={listPrice} currency={currency} /></span>
                 <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-extrabold text-primary-foreground">−{off}%</span>
               </>
             )}

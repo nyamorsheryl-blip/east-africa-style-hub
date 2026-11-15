@@ -19,10 +19,17 @@ export function convertMinor(
 }
 
 export function formatMinor(amountMinor: number, currency: string): string {
+  const major = amountMinor / 100;
+  const whole = Math.abs(major) >= 100;
   try {
-    return new Intl.NumberFormat("en", { style: "currency", currency }).format(amountMinor / 100);
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: whole ? 0 : 2,
+      maximumFractionDigits: whole ? 0 : 2,
+    }).format(major);
   } catch {
-    return `${currency} ${(amountMinor / 100).toFixed(2)}`;
+    return `${currency} ${major.toFixed(2)}`;
   }
 }
 
@@ -71,15 +78,43 @@ export function usePreferredCurrency() {
   });
 }
 
+/** Currency of the shopper's country (reuses the cache written by geo.ts). */
+function useGeoCode() {
+  return useQuery({
+    queryKey: ["geo_currency_code"],
+    staleTime: 24 * 60 * 60 * 1000,
+    queryFn: async () => {
+      try {
+        const cached = localStorage.getItem("maelove.geo");
+        if (cached) {
+          const c = JSON.parse(cached)?.geo?.currency;
+          if (c) return c as string;
+        }
+      } catch {
+        /* ignore */
+      }
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const g = await res.json();
+        return (g.currency as string) || "USD";
+      } catch {
+        return "USD";
+      }
+    },
+  });
+}
+
 /**
  * Show any price in the buyer's currency.
- * Buyer's currency = saved preferred currency, else fallbackCurrency
- * (pass the code from your existing geo hook), else USD.
+ * Buyer's currency = saved preferred currency, else fallbackCurrency,
+ * else their country's currency, else USD. Unsupported currencies fall back to USD.
  */
-export function useMoney(fallbackCurrency = "USD") {
+export function useMoney(fallbackCurrency?: string) {
   const { data: rates } = useRates();
   const { data: preferred } = usePreferredCurrency();
-  const display = preferred ?? fallbackCurrency;
+  const { data: geo } = useGeoCode();
+  const display =
+    [preferred, fallbackCurrency, geo].find((c) => !!c && (!rates || !!rates[c as string])) ?? "USD";
 
   const convert = useCallback(
     (amountMinor: number, from = "USD", to = display) =>
@@ -90,10 +125,11 @@ export function useMoney(fallbackCurrency = "USD") {
   const format = useCallback(
     (amountMinor: number, from = "USD") => {
       const converted = rates ? convertMinor(amountMinor, from, display, rates) : null;
+      // If rates aren't loaded yet, show the seller's own currency rather than a wrong number
       return converted === null ? formatMinor(amountMinor, from) : formatMinor(converted, display);
     },
     [rates, display]
   );
 
-  return { display, convert, format, ready: !!rates };
+  return { display: display as string, convert, format, ready: !!rates };
 }

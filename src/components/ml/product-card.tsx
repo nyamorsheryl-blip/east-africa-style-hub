@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, Star, Eye } from "lucide-react";
-import { formatMoney } from "@/lib/format";
+import { useMoney } from "@/lib/currency";
 import { useWishlist } from "@/lib/wishlist-hook";
 import { QuickView } from "@/components/ml/quick-view";
 
@@ -32,7 +32,7 @@ const BADGE_TONE: Record<string, string> = {
 
 export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; variant?: "grid" | "rail" | "list" }) {
   const price = p.sale_price_cents ?? p.price_cents;
-  const { isSaved, toggle } = useWishlist();
+  const { isSaved, toggle } = useWishlist(); const money = useMoney();
   const saved = isSaved(p.id);
   const [quick, setQuick] = useState(false);
 
@@ -54,8 +54,8 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
           {store && <div className="truncate text-[10px] font-extrabold uppercase tracking-[0.14em] text-primary">{store}</div>}
           <div className="mt-1 line-clamp-2 text-sm font-bold leading-snug">{p.title}</div>
           <div className="mt-2 flex items-center gap-2">
-            <span className="text-base font-black">{formatMoney(price, p.currency ?? "USD")}</span>
-            {off && <span className="text-xs text-muted-foreground line-through">{formatMoney(p.price_cents, p.currency ?? "USD")}</span>}
+            <span className="text-base font-black">{money.format(price, p.currency ?? "USD")}</span>
+            {off && <span className="text-xs text-muted-foreground line-through">{money.format(p.price_cents, p.currency ?? "USD")}</span>}
           </div>
         </div>
       </Link>
@@ -127,10 +127,10 @@ export function ProductCard({ p, variant = "grid" }: { p: ProductCardData; varia
           </div>
         )}
         <div className="mt-auto flex items-baseline gap-2 pt-1">
-          <span className="text-base font-black">{formatMoney(price, p.currency ?? "USD")}</span>
+          <span className="text-base font-black">{money.format(price, p.currency ?? "USD")}</span>
           {off && (
             <span className="text-[11px] text-muted-foreground line-through">
-              {formatMoney(p.price_cents, p.currency ?? "USD")}
+              {money.format(p.price_cents, p.currency ?? "USD")}
             </span>
           )}
         </div>

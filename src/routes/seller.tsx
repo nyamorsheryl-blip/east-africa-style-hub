@@ -10,7 +10,7 @@ import { useSession } from "@/hooks/use-session";
 
 import { SellerEarningsCard } from "@/components/seller-earnings-card";
 
-import { CATEGORIES, COUNTRIES, formatMoney, slugify } from "@/lib/format";
+import { CATEGORIES, COUNTRIES, formatMoney, slugify } from "@/lib/format"; import CurrencySelect from "@/components/CurrencySelect"; import { ProductVideoUpload } from "@/components/ProductVideo"; import { usePreferredCurrency, useMoney, formatMinor } from "@/lib/currency";
 
 import { toast } from "sonner";
 
@@ -592,7 +592,7 @@ function InventoryRow({ p, refetch }: { p: Product; refetch: () => void }) {
 
           <label className="text-xs">
 
-            <span className="block text-muted-foreground mb-1">Price</span>
+            <span className="block text-muted-foreground mb-1">Price ({p.currency})</span>
 
             <input type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full rounded-xl border border-input bg-white/80 px-3 py-2 text-sm" />
 
@@ -708,7 +708,7 @@ function OrdersTab({ userId }: { userId: string }) {
 
         <Stat label="Items sold" value={units} />
 
-        <Stat label="Revenue" value={formatMoney(revenue)} />
+        <Stat label="Revenue" value={formatMoney(revenue, "KES")} />
 
       </div>
 
@@ -1334,7 +1334,7 @@ function CouponForm({ userId, onSaved }: { userId: string; onSaved: () => void }
 
           onChange={(e) => setDiscountValue(e.target.value)}
 
-          placeholder={discountType === "percentage" ? "e.g. 10" : "e.g. 5.00"}
+          placeholder={discountType === "percentage" ? "e.g. 10" : "e.g. 5.00 (USD)"}
 
           className="rounded-2xl border border-input bg-white/80 px-4 py-3 text-sm"
 
@@ -1508,7 +1508,7 @@ function ProductForm({ boutiqueId, userId, onSaved }: { boutiqueId: string; user
 
   const [colors, setColors] = useState("");
 
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]); const [videoUrl, setVideoUrl] = useState<string | null>(null); const qcForm = useQueryClient(); const { data: preferredCur } = usePreferredCurrency(); const moneyHint = useMoney(); const [currencyPick, setCurrencyPick] = useState<string | null>(null); const boutiqueCountry = (qcForm.getQueryData(["boutique", userId]) as { country?: string } | undefined)?.country; const currency = currencyPick ?? preferredCur ?? ({ Kenya: "KES", Uganda: "UGX", Tanzania: "TZS", Rwanda: "RWF", Ethiopia: "ETB" } as Record<string, string>)[boutiqueCountry ?? ""] ?? "USD";
 
   const [uploading, setUploading] = useState(false);
 
@@ -1564,7 +1564,7 @@ function ProductForm({ boutiqueId, userId, onSaved }: { boutiqueId: string; user
 
       const { error } = await supabase.from("products").insert({
 
-        boutique_id: boutiqueId, owner_id: userId, title, description, category,
+        boutique_id: boutiqueId, owner_id: userId, title, description, category, currency, video_url: videoUrl,
 
         price_cents: Math.round(parseFloat(price) * 100),
 
@@ -1584,7 +1584,7 @@ function ProductForm({ boutiqueId, userId, onSaved }: { boutiqueId: string; user
 
       toast.success("Product listed!");
 
-      setTitle(""); setDescription(""); setPrice(""); setSalePrice(""); setStock("1"); setSizes(""); setColors(""); setImages([]);
+      setTitle(""); setDescription(""); setPrice(""); setSalePrice(""); setStock("1"); setSizes(""); setColors(""); setImages([]); setVideoUrl(null);
 
       setOpen(false);
 
@@ -1646,13 +1646,13 @@ function ProductForm({ boutiqueId, userId, onSaved }: { boutiqueId: string; user
 
         </select>
 
-        <input required type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price (USD)" className="rounded-2xl border border-input bg-white/80 px-4 py-3 text-sm" />
+        <div className="flex gap-2"><CurrencySelect value={currency} onChange={setCurrencyPick} className="shrink-0 text-sm" /><input required type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" className="w-full min-w-0 rounded-2xl border border-input bg-white/80 px-4 py-3 text-sm" /></div>
 
       </div>
 
 
 
-      <div className="grid grid-cols-3 gap-3">
+      {parseFloat(price) > 0 && (<p className="px-1 text-xs text-muted-foreground">Priced in {currency}. Buyers see it converted to their own currency{currency !== "USD" && moneyHint.ready ? ` (about ${formatMinor(moneyHint.convert(Math.round(parseFloat(price) * 100), currency, "USD") ?? 0, "USD")})` : ""}.</p>)}<div className="grid grid-cols-3 gap-3">
 
         <input type="number" step="0.01" min="0" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="Sale price" className="rounded-2xl border border-input bg-white/80 px-4 py-3 text-sm" />
 
@@ -1700,7 +1700,7 @@ function ProductForm({ boutiqueId, userId, onSaved }: { boutiqueId: string; user
 
 
 
-      <button disabled={saving || uploading} className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-60">
+      <div><div className="text-xs font-semibold mb-2">Video (optional, up to 50 MB)</div><ProductVideoUpload userId={userId} value={videoUrl} onChange={setVideoUrl} /></div><button disabled={saving || uploading} className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-60">
 
         {saving ? "Publishing…" : "Publish product"}
 

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/use-session";
+import { useSession } from "@/hooks/use-session"; import { useMoney } from "@/lib/currency";
 
 export interface CartItem {
   productId: string;
   title: string;
-  priceCents: number;
+  priceCents: number;  currency?: string;
   imageUrl?: string;
   sellerId: string;
   quantity: number;
@@ -29,7 +29,7 @@ type Row = {
   quantity: number;
   products: {
     title: string | null;
-    price_cents: number | null;
+    price_cents: number | null;    currency: string | null;
     sale_price_cents: number | null;
     images: string[] | null;
     owner_id: string | null;
@@ -43,7 +43,7 @@ function rowToItem(r: Row): CartItem {
   return {
     productId: r.product_id,
     title: p?.title ?? "Item",
-    priceCents: p?.sale_price_cents ?? p?.price_cents ?? 0,
+    priceCents: p?.sale_price_cents ?? p?.price_cents ?? 0, currency: p?.currency ?? "USD",
     imageUrl: p?.images?.[0],
     sellerId: p?.owner_id ?? "",
     quantity: r.quantity,
@@ -54,7 +54,7 @@ function rowToItem(r: Row): CartItem {
 async function fetchRemote(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from("cart_items")
-    .select("product_id, quantity, products(title, price_cents, sale_price_cents, images, owner_id, published, stock)")
+    .select("product_id, quantity, products(title, price_cents, sale_price_cents, currency, images, owner_id, published, stock)")
     .eq("user_id", userId);
   if (error) throw error;
   return ((data ?? []) as unknown as Row[]).map(rowToItem);
@@ -67,7 +67,7 @@ async function fetchRemote(userId: string): Promise<CartItem[]> {
  */
 export function useCart() {
   const { user } = useSession();
-  const userId = user?.id;
+  const userId = user?.id; const money = useMoney();
   const [items, setItems] = useState<CartItem[]>([]);
   const merged = useRef<string | null>(null);
 
@@ -209,7 +209,7 @@ export function useCart() {
     remove,
     setQty,
     clear,
-    total: available.reduce((s, i) => s + i.priceCents * i.quantity, 0),
+    total: available.reduce((s, i) => s + (money.convert(i.priceCents, i.currency) ?? i.priceCents) * i.quantity, 0),
     count: available.reduce((s, i) => s + i.quantity, 0),
   };
 }

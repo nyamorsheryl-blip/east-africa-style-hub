@@ -8,7 +8,7 @@ import {
   MapPin, FileText, Info, HelpCircle, Sparkles, TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatMoney } from "@/lib/format";
+import { useMoney } from "@/lib/currency"; import { ProductVideoPlayer } from "@/components/ProductVideo";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist-hook";
 import { useSession } from "@/hooks/use-session";
@@ -41,7 +41,7 @@ function ProductPage() {
   const { id } = Route.useParams();
   const cart = useCart();
   const { isSaved, toggle } = useWishlist();
-  const { user } = useSession();
+  const { user } = useSession(); const money = useMoney();
   const navigate = useNavigate();
   const [colour, setColour] = useState(SWATCHES[0].name);
   const [size, setSize] = useState<string | null>(null);
@@ -115,7 +115,7 @@ function ProductPage() {
   const trust = 98;
 
   function handleAddToBag() {
-    cart.add({ productId: id, title, priceCents: price, imageUrl: base[0], sellerId: sellerId ?? "demo" });
+    cart.add({ productId: id, title, priceCents: price, currency, imageUrl: base[0], sellerId: sellerId ?? "demo" });
     setAdded(true);
     toast.success(size ? `Added — size ${size}` : "Added to bag");
   }
@@ -195,7 +195,7 @@ function ProductPage() {
       {/* Sticky quick-buy bar — pinned just below the gallery as the page scrolls */}
       <div className="sticky top-0 z-30 px-4 pb-3 pt-3" style={{ background: "linear-gradient(180deg, var(--background) 75%, transparent)" }}>
         <div className="glass-strong mx-auto flex max-w-lg items-center gap-2 rounded-full p-2 shadow-[var(--shadow-soft)]">
-          <span className="min-w-0 flex-1 truncate pl-3 text-[13px] font-black">{formatMoney(price, currency)}</span>
+          <span className="min-w-0 flex-1 truncate pl-3 text-[13px] font-black">{money.format(price, currency)}</span>
           <button
             onClick={handleAddToBag}
             className={`press glass flex min-w-0 shrink-0 items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-extrabold ${added ? "pop-in" : ""}`}
@@ -211,7 +211,7 @@ function ProductPage() {
         </div>
       </div>
 
-      {/* Title + trust */}
+      {row?.video_url ? (<div className="mx-auto max-w-3xl px-5 pt-2"><ProductVideoPlayer src={String(row?.video_url)} /></div>) : null}{/* Title + trust */}
       <div className="rise mx-auto max-w-3xl px-5 pt-2">
         <div className="flex flex-wrap items-center gap-2">
           <Link to="/store/$slug" params={{ slug: storeSlug }} className="press inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary">
@@ -236,21 +236,21 @@ function ProductPage() {
         {/* Pricing */}
         <div className="card-ml mt-5">
           <div className="flex flex-wrap items-baseline gap-3">
-            <span className="text-[34px] font-black leading-none tracking-tight">{formatMoney(price, currency)}</span>
+            <span className="text-[34px] font-black leading-none tracking-tight">{money.format(price, currency)}</span>
             {savings > 0 && (
               <>
-                <span className="text-[14px] text-muted-foreground line-through">{formatMoney(listPrice, currency)}</span>
+                <span className="text-[14px] text-muted-foreground line-through">{money.format(listPrice, currency)}</span>
                 <span className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-black text-primary-foreground">−{off}%</span>
               </>
             )}
           </div>
           {savings > 0 && (
-            <p className="mt-2 text-[12px] font-bold text-primary">You save {formatMoney(savings, currency)}</p>
+            <p className="mt-2 text-[12px] font-bold text-primary">You save {money.format(savings, currency)}</p>
           )}
           <div className="mt-3 flex items-center gap-2 rounded-2xl bg-muted/60 px-3.5 py-2.5">
             <Zap className="h-4 w-4 shrink-0 text-primary" />
             <p className="text-[12px] font-bold">
-              Or 3 interest-free payments of {formatMoney(Math.round(price / 3), currency)}
+              Or 3 interest-free payments of {money.format(Math.round(price / 3), currency)}
               <span className="ml-1 font-medium text-muted-foreground">— eligible at checkout</span>
             </p>
           </div>
@@ -322,7 +322,7 @@ function ProductPage() {
             <Truck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <div>
               <div className="text-[13px] font-black">Delivery 12–18 Aug</div>
-              <div className="text-[11px] text-muted-foreground">Free over {formatMoney(15000, currency)} · duties included</div>
+              <div className="text-[11px] text-muted-foreground">Free over {money.format(15000, "USD")} · duties included</div>
             </div>
           </div>
           <div className="glass flex items-start gap-3 rounded-3xl p-4">

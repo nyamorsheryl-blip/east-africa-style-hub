@@ -6,7 +6,7 @@ import { Trash2, ShoppingBag, Tag, Truck, ArrowLeft, Check, AlertCircle, Smartph
 
 import { useCart } from "@/lib/cart";
 
-import { formatMoney } from "@/lib/format";
+import { useMoney, formatMinor } from "@/lib/currency";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -84,7 +84,7 @@ function CartPage() {
 
   const { user } = useSession();
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); const money = useMoney(); const fmt = (c: number) => formatMinor(c, money.display);
 
 
 
@@ -120,7 +120,7 @@ function CartPage() {
 
 
 
-  const ship = DELIVERY.find((d) => d.id === delivery)?.price ?? 0;
+  const shipUsd = DELIVERY.find((d) => d.id === delivery)?.price ?? 0; const ship = money.convert(shipUsd, "USD") ?? shipUsd;
 
 
 
@@ -130,11 +130,11 @@ function CartPage() {
 
       .filter((i) => i.sellerId === c.seller_id)
 
-      .reduce((s, i) => s + i.priceCents * i.quantity, 0);
+      .reduce((s, i) => s + (money.convert(i.priceCents, i.currency) ?? i.priceCents) * i.quantity, 0);
 
     if (c.discount_type === "percentage") return Math.round((sellerSubtotal * c.discount_value) / 100);
 
-    return Math.min(sellerSubtotal, c.discount_value);
+    return Math.min(sellerSubtotal, money.convert(c.discount_value, "USD") ?? c.discount_value);
 
   }
 
@@ -479,7 +479,7 @@ function CartPage() {
 
                   ) : (
 
-                    <div className="mt-1 text-base font-black">{formatMoney(i.priceCents)}</div>
+                    <div className="mt-1 text-base font-black">{money.format(i.priceCents, i.currency)}</div>
 
                   )}
 
@@ -579,7 +579,7 @@ function CartPage() {
 
                   <div className="mt-2 flex items-center gap-1.5 px-2 text-[12px] font-bold text-primary">
 
-                    <Check className="h-3.5 w-3.5" /> "{appliedCode}" applied — {formatMoney(discount)} off
+                    <Check className="h-3.5 w-3.5" /> "{appliedCode}" applied — {fmt(discount)} off
 
                   </div>
 
@@ -625,7 +625,7 @@ function CartPage() {
 
                       </span>
 
-                      <span className="text-[13px] font-black">{d.price ? formatMoney(d.price) : "Free"}</span>
+                      <span className="text-[13px] font-black">{d.price ? money.format(d.price, "USD") : "Free"}</span>
 
                     </button>
 
@@ -663,11 +663,11 @@ function CartPage() {
 
                   <h2 className="mb-4 text-[15px] font-black tracking-tight">Order summary</h2>
 
-                  <Row label="Subtotal" value={formatMoney(cart.total)} />
+                  <Row label="Subtotal" value={fmt(cart.total)} />
 
-                  {discount > 0 && <Row label="Discount" value={`−${formatMoney(discount)}`} accent />}
+                  {discount > 0 && <Row label="Discount" value={`−${fmt(discount)}`} accent />}
 
-                  <Row label="Delivery" value={ship ? formatMoney(ship) : "Free"} />
+                  <Row label="Delivery" value={ship ? fmt(ship) : "Free"} />{money.display !== "KES" && <Row label="M-Pesa charge (approx.)" value={formatMinor(money.convert(total, money.display, "KES") ?? 0, "KES")} />}
 
                   <div className="my-4 border-t border-border" />
 
@@ -675,7 +675,7 @@ function CartPage() {
 
                     <span className="text-[15px] font-black">Total</span>
 
-                    <span className="text-2xl font-black tracking-tight">{formatMoney(total)}</span>
+                    <span className="text-2xl font-black tracking-tight">{fmt(total)}</span>
 
                   </div>
 
@@ -689,7 +689,7 @@ function CartPage() {
 
                 <button disabled={cart.available.length === 0} onClick={startCheckout} className="btn-base btn-primary w-full py-4 disabled:opacity-50">
 
-                  Checkout · {formatMoney(total)}
+                  Checkout · {fmt(total)}
 
                 </button>
 
@@ -737,7 +737,7 @@ function CartPage() {
 
                     <span className="text-[15px] font-black">Total</span>
 
-                    <span className="text-2xl font-black tracking-tight">{formatMoney(total)}</span>
+                    <span className="text-2xl font-black tracking-tight">{fmt(total)}</span>
 
                   </div>
 

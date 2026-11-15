@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { useSession } from "@/hooks/use-session";
-import { formatMoney } from "@/lib/format";
+import Price from "@/components/Price";
 import { toast } from "sonner";
 import { Heart, Trash2 } from "lucide-react";
 
@@ -62,7 +62,7 @@ function Wishlist() {
                     <div className="p-3">
                       <div className="text-xs text-muted-foreground">{p.category}</div>
                       <div className="text-sm font-semibold truncate">{p.title}</div>
-                      <div className="text-sm font-bold text-primary">{formatMoney(p.sale_price_cents ?? p.price_cents, p.currency)}</div>
+                      <div className="text-sm font-bold text-primary"><Price cents={p.sale_price_cents ?? p.price_cents} currency={p.currency ?? "USD"} /></div>
                     </div>
                   </Link>
                   <button onClick={() => remove(p.id)} className="absolute top-2 right-2 glass rounded-full p-2"><Trash2 className="h-3.5 w-3.5" /></button>

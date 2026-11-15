@@ -147,7 +147,7 @@ function OverviewTab() {
         <Stat label="Sellers" value={data?.sellers ?? 0} />
         <Stat label="Products" value={data?.products ?? 0} />
         <Stat label="Orders" value={data?.orders ?? 0} />
-        <Stat label="Gross revenue" value={formatMoney(data?.totalRevenueCents ?? 0)} />
+        <Stat label="Gross revenue" value={formatMoney(data?.totalRevenueCents ?? 0, "KES")} />
       </div>
       <div className="glass rounded-3xl p-6">
         <h2 className="font-display text-lg font-semibold mb-4">Orders, last 14 days</h2>
@@ -250,7 +250,7 @@ function ProductsTab({ adminId }: { adminId: string }) {
         <div key={p.id} className="glass rounded-2xl p-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <div className="font-bold line-clamp-1">{p.title}</div>
-            <div className="text-xs text-muted-foreground">{formatMoney(p.price_cents)} · stock {p.stock}</div>
+            <div className="text-xs text-muted-foreground">{formatMoney(p.price_cents, (p as unknown as { currency?: string }).currency ?? "USD")} · stock {p.stock}</div>
           </div>
           <button onClick={() => toggle(p.id, !p.published)} className={`press shrink-0 rounded-full text-xs font-bold px-3 py-1.5 ${p.published ? "glass" : "bg-primary text-primary-foreground"}`}>
             {p.published ? "Unpublish" : "Publish"}

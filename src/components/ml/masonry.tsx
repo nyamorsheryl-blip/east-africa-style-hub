@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Play, BadgeCheck, Bookmark } from "lucide-react";
 import { buildFeed, COLLECTIONS, type FeedItem } from "@/lib/social-data";
 import { DEMO_PRODUCTS, DEMO_STORES } from "@/lib/demo-data";
-import { formatMoney } from "@/lib/format";
+import Price from "@/components/Price";
 import { Skeleton } from "@/components/ml/states";
 
 function Tile({ item, liked, onLike }: { item: FeedItem; liked: boolean; onLike: () => void }) {
@@ -32,7 +32,7 @@ function Tile({ item, liked, onLike }: { item: FeedItem; liked: boolean; onLike:
         <span className="block p-3">
           <span className="block truncate text-[10px] font-extrabold uppercase tracking-[0.14em] text-primary">{p.store}</span>
           <span className="mt-1 block line-clamp-2 text-[13px] font-bold leading-snug">{p.title}</span>
-          <span className="mt-1.5 block text-[14px] font-black">{formatMoney(p.sale_price_cents ?? p.price_cents)}</span>
+          <span className="mt-1.5 block text-[14px] font-black"><Price cents={p.sale_price_cents ?? p.price_cents} currency={(p as unknown as { currency?: string }).currency ?? "USD"} /></span>
         </span>
       </Link>
     );

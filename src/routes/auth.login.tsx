@@ -1,3 +1,4 @@
+import { GoogleButton } from "@/components/auth/google-button";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,6 +114,16 @@ function LoginPage() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
+
+      <div className="mt-6 space-y-4">
+        <div className="relative flex py-2 items-center">
+          <div className="flex-grow border-t border-muted"></div>
+          <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase">Or</span>
+          <div className="flex-grow border-t border-muted"></div>
+        </div>
+
+        <GoogleButton />
+      </div>
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
         New to MaeLove?{" "}

@@ -10,23 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as DeliveryRouteImport } from './routes/delivery'
+import { Route as DeliveryPolicyRouteImport } from './routes/delivery-policy'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as LookbooksRouteImport } from './routes/lookbooks'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as SellerAgreementRouteImport } from './routes/seller-agreement'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SocialRouteImport } from './routes/social'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThriftRouteImport } from './routes/thrift'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -51,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -71,6 +82,11 @@ const DeliveryRoute = DeliveryRouteImport.update({
   path: '/delivery',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeliveryPolicyRoute = DeliveryPolicyRouteImport.update({
+  id: '/delivery-policy',
+  path: '/delivery-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiscoverRoute = DiscoverRouteImport.update({
   id: '/discover',
   path: '/discover',
@@ -79,6 +95,11 @@ const DiscoverRoute = DiscoverRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LookbooksRoute = LookbooksRouteImport.update({
@@ -111,6 +132,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RefundsRoute = RefundsRouteImport.update({
+  id: '/refunds',
+  path: '/refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
@@ -119,6 +145,11 @@ const SellRoute = SellRouteImport.update({
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerAgreementRoute = SellerAgreementRouteImport.update({
+  id: '/seller-agreement',
+  path: '/seller-agreement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -134,6 +165,11 @@ const ShopRoute = ShopRouteImport.update({
 const SocialRoute = SocialRouteImport.update({
   id: '/social',
   path: '/social',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThriftRoute = ThriftRouteImport.update({
@@ -232,23 +268,29 @@ const Char91DotmcpChar93InvokeToolToolRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/delivery': typeof DeliveryRoute
+  '/delivery-policy': typeof DeliveryPolicyRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
+  '/help': typeof HelpRoute
   '/lookbooks': typeof LookbooksRoute
   '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/refunds': typeof RefundsRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/terms': typeof TermsRoute
   '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -270,22 +312,28 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/delivery': typeof DeliveryRoute
+  '/delivery-policy': typeof DeliveryPolicyRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
+  '/help': typeof HelpRoute
   '/lookbooks': typeof LookbooksRoute
   '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/refunds': typeof RefundsRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/terms': typeof TermsRoute
   '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -308,23 +356,29 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/delivery': typeof DeliveryRoute
+  '/delivery-policy': typeof DeliveryPolicyRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
+  '/help': typeof HelpRoute
   '/lookbooks': typeof LookbooksRoute
   '/mcp': typeof McpRoute
   '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/refunds': typeof RefundsRoute
   '/sell': typeof SellRoute
   '/seller': typeof SellerRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/terms': typeof TermsRoute
   '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -348,23 +402,29 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/admin'
     | '/auth'
     | '/cart'
     | '/delivery'
+    | '/delivery-policy'
     | '/discover'
     | '/explore'
+    | '/help'
     | '/lookbooks'
     | '/mcp'
     | '/messages'
     | '/orders'
     | '/privacy'
     | '/profile'
+    | '/refunds'
     | '/sell'
     | '/seller'
+    | '/seller-agreement'
     | '/settings'
     | '/shop'
     | '/social'
+    | '/terms'
     | '/thrift'
     | '/wishlist'
     | '/.mcp/list-tools'
@@ -386,22 +446,28 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/admin'
     | '/cart'
     | '/delivery'
+    | '/delivery-policy'
     | '/discover'
     | '/explore'
+    | '/help'
     | '/lookbooks'
     | '/mcp'
     | '/messages'
     | '/orders'
     | '/privacy'
     | '/profile'
+    | '/refunds'
     | '/sell'
     | '/seller'
+    | '/seller-agreement'
     | '/settings'
     | '/shop'
     | '/social'
+    | '/terms'
     | '/thrift'
     | '/wishlist'
     | '/.mcp/list-tools'
@@ -423,23 +489,29 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/admin'
     | '/auth'
     | '/cart'
     | '/delivery'
+    | '/delivery-policy'
     | '/discover'
     | '/explore'
+    | '/help'
     | '/lookbooks'
     | '/mcp'
     | '/messages'
     | '/orders'
     | '/privacy'
     | '/profile'
+    | '/refunds'
     | '/sell'
     | '/seller'
+    | '/seller-agreement'
     | '/settings'
     | '/shop'
     | '/social'
+    | '/terms'
     | '/thrift'
     | '/wishlist'
     | '/.mcp/list-tools'
@@ -462,23 +534,29 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRouteWithChildren
   CartRoute: typeof CartRoute
   DeliveryRoute: typeof DeliveryRoute
+  DeliveryPolicyRoute: typeof DeliveryPolicyRoute
   DiscoverRoute: typeof DiscoverRoute
   ExploreRoute: typeof ExploreRoute
+  HelpRoute: typeof HelpRoute
   LookbooksRoute: typeof LookbooksRoute
   McpRoute: typeof McpRoute
   MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  RefundsRoute: typeof RefundsRoute
   SellRoute: typeof SellRoute
   SellerRoute: typeof SellerRoute
+  SellerAgreementRoute: typeof SellerAgreementRoute
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   SocialRoute: typeof SocialRoute
+  TermsRoute: typeof TermsRoute
   ThriftRoute: typeof ThriftRoute
   WishlistRoute: typeof WishlistRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -498,6 +576,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -528,6 +613,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeliveryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/delivery-policy': {
+      id: '/delivery-policy'
+      path: '/delivery-policy'
+      fullPath: '/delivery-policy'
+      preLoaderRoute: typeof DeliveryPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/discover': {
       id: '/discover'
       path: '/discover'
@@ -540,6 +632,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lookbooks': {
@@ -584,6 +683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/refunds': {
+      id: '/refunds'
+      path: '/refunds'
+      fullPath: '/refunds'
+      preLoaderRoute: typeof RefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
@@ -596,6 +702,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller-agreement': {
+      id: '/seller-agreement'
+      path: '/seller-agreement'
+      fullPath: '/seller-agreement'
+      preLoaderRoute: typeof SellerAgreementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -617,6 +730,13 @@ declare module '@tanstack/react-router' {
       path: '/social'
       fullPath: '/social'
       preLoaderRoute: typeof SocialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/thrift': {
@@ -774,23 +894,29 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRouteWithChildren,
   CartRoute: CartRoute,
   DeliveryRoute: DeliveryRoute,
+  DeliveryPolicyRoute: DeliveryPolicyRoute,
   DiscoverRoute: DiscoverRoute,
   ExploreRoute: ExploreRoute,
+  HelpRoute: HelpRoute,
   LookbooksRoute: LookbooksRoute,
   McpRoute: McpRoute,
   MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  RefundsRoute: RefundsRoute,
   SellRoute: SellRoute,
   SellerRoute: SellerRoute,
+  SellerAgreementRoute: SellerAgreementRoute,
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   SocialRoute: SocialRoute,
+  TermsRoute: TermsRoute,
   ThriftRoute: ThriftRoute,
   WishlistRoute: WishlistRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,

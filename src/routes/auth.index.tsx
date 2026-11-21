@@ -104,7 +104,7 @@ function AuthWelcome() {
       </p>
 
       <p className="text-center text-[11px] text-muted-foreground px-6">
-        By continuing you agree to MaeLove's Terms of Service and Privacy Policy.
+        By continuing you agree to MaeLove's <a href="/terms" className="underline">Terms</a> and <a href="/privacy" className="underline">Privacy Policy</a>.
       </p>
     </div>
   );

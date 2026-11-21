@@ -11,6 +11,16 @@ export function SiteFooter() {
               <span className="font-display text-2xl">MaeLove</span>
             </div>
             <p className="text-sm opacity-80">East Africa's boutique fashion marketplace. Handcrafted. Bold. Global.</p>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-80">
+          <a href="/about" className="underline underline-offset-4">About</a>
+          <a href="/help" className="underline underline-offset-4">Help</a>
+          <a href="/terms" className="underline underline-offset-4">Terms</a>
+          <a href="/privacy" className="underline underline-offset-4">Privacy</a>
+          <a href="/refunds" className="underline underline-offset-4">Refunds</a>
+          <a href="/delivery-policy" className="underline underline-offset-4">Delivery</a>
+          <a href="/seller-agreement" className="underline underline-offset-4">Seller agreement</a>
+          <a href="mailto:officialmaelove@gmail.com" className="underline underline-offset-4">Contact</a>
+        </div>
           </div>
           <div>
             <h4 className="font-display text-lg mb-3">Shop</h4>

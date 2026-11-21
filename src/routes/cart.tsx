@@ -6,7 +6,7 @@ import { Trash2, ShoppingBag, Tag, Truck, ArrowLeft, Check, AlertCircle, Smartph
 
 import { useCart } from "@/lib/cart";
 
-import { useMoney, formatMinor } from "@/lib/currency";
+import { useMoney, formatMinor } from "@/lib/money";
 
 import { supabase } from "@/integrations/supabase/client";
 

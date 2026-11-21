@@ -1,0 +1,577 @@
+﻿=== src\routes\auth.tsx ===
+import { Outlet, createFileRoute, Link } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
+
+export const Route = createFileRoute("/auth")({
+  component: AuthLayout,
+});
+
+function AuthLayout() {
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Ambient background orbs */}
+      <div className="pointer-events-none absolute -top-24 -left-16 h-72 w-72 rounded-full bg-blush/70 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-berry/40 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-lime/30 blur-3xl" />
+
+      <div className="relative mx-auto max-w-md px-5 pt-10 pb-24">
+        <Link to="/" className="mx-auto flex w-fit items-center gap-2">
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-2xl font-display font-black text-white text-xl shadow-[var(--shadow-glow)]"
+            style={{ background: "var(--gradient-hero)" }}
+          >
+            M
+          </div>
+          <div className="leading-tight">
+            <div className="font-display text-xl font-extrabold tracking-tight">MaeLove</div>
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Sparkles className="h-2.5 w-2.5 text-berry" /> East Africa's boutique marketplace
+            </div>
+          </div>
+        </Link>
+
+        <div className="mt-8">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+=== src\routes\auth.index.tsx ===
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { ShoppingBag, Store, Sparkles, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+export const Route = createFileRoute("/auth/")({
+  component: AuthWelcome,
+});
+
+const SLIDES = [
+  {
+    tag: "Discover",
+    title: "Boutique fashion,\ncurated for you",
+    body: "Shop kitenge, kikoi, jewellery & one-of-a-kind pieces from East African designers.",
+    grad: "linear-gradient(135deg, var(--berry), var(--blush))",
+  },
+  {
+    tag: "Create",
+    title: "Open your\nboutique in minutes",
+    body: "List products, manage orders, get paid via M-Pesa, Airtel & Stripe.",
+    grad: "linear-gradient(135deg, var(--plum), var(--berry))",
+  },
+  {
+    tag: "Belong",
+    title: "Join a community\nof makers & buyers",
+    body: "Reviews, referrals and verified boutiques — the way commerce should feel.",
+    grad: "linear-gradient(135deg, var(--blush), var(--lime))",
+  },
+];
+
+function AuthWelcome() {
+  const [slide, setSlide] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/" });
+    });
+  }, [navigate]);
+
+  useEffect(() => {
+    const t = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 4200);
+    return () => clearInterval(t);
+  }, []);
+
+  const s = SLIDES[slide];
+
+  return (
+    <div className="space-y-6">
+      <div
+        className="glass rounded-[32px] p-6 min-h-[380px] flex flex-col justify-end relative overflow-hidden transition-all"
+        style={{ backgroundImage: s.grad }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-plum/70 via-plum/10 to-transparent" />
+        <div className="relative text-cream">
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
+            <Sparkles className="h-3 w-3" /> {s.tag}
+          </span>
+          <h1 className="mt-3 font-display text-3xl leading-tight font-black whitespace-pre-line">
+            {s.title}
+          </h1>
+          <p className="mt-2 text-sm text-cream/90 max-w-xs">{s.body}</p>
+
+          <div className="mt-5 flex gap-1.5">
+            {SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setSlide(i)}
+                aria-label={`Slide ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all ${i === slide ? "w-8 bg-cream" : "w-1.5 bg-cream/50"}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2.5">
+        <Link
+          to="/auth/signup"
+          className="flex items-center justify-between rounded-full bg-berry px-6 py-4 text-sm font-semibold text-cream shadow-[var(--shadow-glow)] active:scale-[0.98] transition"
+        >
+          <span className="flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> Create your account</span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link
+          to="/auth/signup"
+          search={{ intent: "sell" } as never}
+          className="flex items-center justify-between rounded-full glass px-6 py-4 text-sm font-semibold text-plum active:scale-[0.98] transition"
+        >
+          <span className="flex items-center gap-2"><Store className="h-4 w-4" /> Open a boutique</span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      <p className="text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link to="/auth/login" className="font-semibold text-berry underline underline-offset-4">
+          Sign in
+        </Link>
+      </p>
+
+      <p className="text-center text-[11px] text-muted-foreground px-6">
+        By continuing you agree to MaeLove's Terms of Service and Privacy Policy.
+      </p>
+    </div>
+  );
+}
+
+=== src\routes\auth.login.tsx ===
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { signInSchema } from "@/lib/auth-schemas";
+import { toast } from "sonner"; import GoogleButton from "@/components/GoogleButton";
+import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Lock } from "lucide-react";
+import { Field } from "./auth.signup";
+
+export const Route = createFileRoute("/auth/login")({
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
+      ? { next: s.next }
+      : {},
+  component: LoginPage,
+});
+
+function LoginPage() {
+  const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [remember, setRemember] = useState(true);
+  const [errors, setErrors] = useState<Partial<Record<"email" | "password" | "form", string>>>({});
+  const [form, setForm] = useState({ email: "", password: "" });
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = signInSchema.safeParse({ ...form, remember });
+    if (!parsed.success) {
+      const fe: typeof errors = {};
+      parsed.error.issues.forEach((i) => { fe[i.path[0] as "email" | "password"] = i.message; });
+      setErrors(fe);
+      return;
+    }
+    setLoading(true);
+    setErrors({});
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+      if (error) throw error;
+      localStorage.setItem("maelove:remember", remember ? "1" : "0");
+      toast.success("Welcome back");
+      if (next) { window.location.href = next; return; }
+      navigate({ to: "/" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Sign in failed";
+      if (/invalid login|invalid credentials/i.test(msg)) {
+        setErrors({ form: "Wrong email or password" });
+      } else if (/email not confirmed/i.test(msg)) {
+        setErrors({ form: "Please verify your email first" });
+      } else {
+        setErrors({ form: msg });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="glass rounded-3xl p-6">
+      <Link to="/auth" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-plum">
+        <ArrowLeft className="h-3 w-3" /> Back
+      </Link>
+      <h1 className="mt-3 font-display text-2xl font-black">Welcome back</h1>
+      <p className="text-sm text-muted-foreground">Sign in to continue shopping and selling.</p>
+
+      <GoogleButton next={next} /><form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>
+        <Field icon={<Mail className="h-4 w-4" />} label="Email" error={errors.email}>
+          <input
+            type="email" autoComplete="email" value={form.email}
+            onChange={(e) => { setForm((f) => ({ ...f, email: e.target.value })); setErrors({}); }}
+            placeholder="you@maelove.co"
+            className="w-full bg-transparent outline-none text-sm"
+          />
+        </Field>
+
+        <Field icon={<Lock className="h-4 w-4" />} label="Password" error={errors.password}>
+          <input
+            type={showPw ? "text" : "password"} autoComplete="current-password" value={form.password}
+            onChange={(e) => { setForm((f) => ({ ...f, password: e.target.value })); setErrors({}); }}
+            placeholder="Your password"
+            className="w-full bg-transparent outline-none text-sm"
+          />
+          <button type="button" onClick={() => setShowPw((s) => !s)} className="text-muted-foreground hover:text-plum">
+            {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </Field>
+
+        {errors.form && (
+          <div className="rounded-2xl bg-destructive/10 border border-destructive/20 px-3 py-2 text-xs text-destructive">
+            {errors.form}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between text-xs">
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)}
+              className="h-4 w-4 rounded border-berry/40 text-berry focus:ring-berry/30"
+            />
+            <span className="text-plum/80 font-medium">Remember me</span>
+          </label>
+          <Link to="/auth/forgot" className="font-semibold text-berry">Forgot password?</Link>
+        </div>
+
+        <button
+          type="submit" disabled={loading}
+          className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-full bg-berry py-3.5 text-sm font-semibold text-cream shadow-[var(--shadow-glow)] disabled:opacity-60 active:scale-[0.98] transition"
+        >
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        New to MaeLove?{" "}
+        <Link to="/auth/signup" className="font-semibold text-berry">Create an account</Link>
+      </p>
+    </div>
+  );
+}
+=== src\routes\auth.signup.tsx ===
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useState } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { signUpSchema, passwordStrength } from "@/lib/auth-schemas";
+import { toast } from "sonner"; import GoogleButton from "@/components/GoogleButton";
+import { Eye, EyeOff, Loader2, ArrowLeft, Mail, User, AtSign, Lock, CheckCircle2, AlertCircle } from "lucide-react";
+
+const search = z.object({ intent: z.enum(["shop", "sell", "deliver"]).optional() });
+
+export const Route = createFileRoute("/auth/signup")({
+  component: SignUpPage,
+  validateSearch: search,
+});
+
+type Errors = Partial<Record<"full_name" | "username" | "email" | "password", string>>;
+
+function SignUpPage() {
+  const { intent } = useSearch({ from: "/auth/signup" });
+  const navigate = useNavigate();
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Errors>({});
+  const [form, setForm] = useState({ full_name: "", username: "", email: "", password: "" });
+
+  const strength = passwordStrength(form.password);
+
+  function update<K extends keyof typeof form>(k: K, v: string) {
+    setForm((f) => ({ ...f, [k]: v }));
+    setErrors((e) => ({ ...e, [k]: undefined }));
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = signUpSchema.safeParse(form);
+    if (!parsed.success) {
+      const fe: Errors = {};
+      parsed.error.issues.forEach((i) => { fe[i.path[0] as keyof Errors] = i.message; });
+      setErrors(fe);
+      return;
+    }
+    setLoading(true);
+    try {
+      // Pre-check username availability
+      const { data: taken } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", parsed.data.username.toLowerCase())
+        .maybeSingle();
+      if (taken) {
+        setErrors({ username: "That username is taken" });
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        options: {
+          data: {
+            full_name: parsed.data.full_name,
+            username: parsed.data.username.toLowerCase(),
+          },
+          emailRedirectTo: `${window.location.origin}/auth/verify`,
+        },
+      });
+      if (error) throw error;
+
+      // Store intent so onboarding preselects
+      if (intent) sessionStorage.setItem("maelove:intent", intent);
+
+      if (data.session) {
+        // Auto-confirmed (no email verification) → go straight to onboarding
+        toast.success("Welcome to MaeLove!");
+        navigate({ to: "/auth/onboarding" });
+      } else {
+        navigate({ to: "/auth/verify", search: { email: parsed.data.email } as never });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Sign up failed";
+      if (/already registered|already exists/i.test(msg)) {
+        setErrors({ email: "This email is already registered" });
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="glass rounded-3xl p-6">
+      <Link to="/auth" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-plum">
+        <ArrowLeft className="h-3 w-3" /> Back
+      </Link>
+      <h1 className="mt-3 font-display text-2xl font-black">Create your account</h1>
+      <p className="text-sm text-muted-foreground">
+        {intent === "sell" ? "Set up your boutique in a few taps." : intent === "deliver" ? "Sign up to start delivering and earning." : "Shop, sell and connect across East Africa."}
+      </p>
+
+      <GoogleButton intent={intent} /><form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>
+        <Field icon={<User className="h-4 w-4" />} label="Full name" error={errors.full_name}>
+          <input
+            type="text" autoComplete="name" value={form.full_name}
+            onChange={(e) => update("full_name", e.target.value)}
+            placeholder="Amara Okoye"
+            className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground/70"
+          />
+        </Field>
+
+        <Field icon={<AtSign className="h-4 w-4" />} label="Username" error={errors.username}>
+          <input
+            type="text" autoComplete="username" value={form.username}
+            onChange={(e) => update("username", e.target.value.replace(/\s/g, ""))}
+            placeholder="amara"
+            className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground/70 lowercase"
+          />
+        </Field>
+
+        <Field icon={<Mail className="h-4 w-4" />} label="Email" error={errors.email}>
+          <input
+            type="email" autoComplete="email" value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            placeholder="you@maelove.co"
+            className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground/70"
+          />
+        </Field>
+
+        <Field icon={<Lock className="h-4 w-4" />} label="Password" error={errors.password}>
+          <input
+            type={showPw ? "text" : "password"} autoComplete="new-password" value={form.password}
+            onChange={(e) => update("password", e.target.value)}
+            placeholder="At least 8 characters"
+            className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground/70"
+          />
+          <button type="button" onClick={() => setShowPw((s) => !s)} className="text-muted-foreground hover:text-plum">
+            {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </Field>
+
+        {form.password && (
+          <div className="space-y-1.5">
+            <div className="flex gap-1">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1 flex-1 rounded-full transition-all ${i <= strength.score ? strength.color : "bg-muted"}`}
+                />
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground">Password strength: <span className="font-semibold text-plum">{strength.label}</span></p>
+          </div>
+        )}
+
+        <button
+          type="submit" disabled={loading}
+          className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-full bg-berry py-3.5 text-sm font-semibold text-cream shadow-[var(--shadow-glow)] disabled:opacity-60 active:scale-[0.98] transition"
+        >
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading ? "Creating account…" : "Create account"}
+        </button>
+      </form>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        Already a member?{" "}
+        <Link to="/auth/login" className="font-semibold text-berry">Sign in</Link>
+      </p>
+    </div>
+  );
+}
+
+export function Field({
+  icon, label, error, children,
+}: { icon: React.ReactNode; label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-plum/70">{label}</label>
+      <div className={`flex items-center gap-2.5 rounded-2xl border bg-white/70 px-3.5 py-3 transition ${
+        error ? "border-destructive" : "border-white/80 focus-within:border-berry focus-within:ring-2 focus-within:ring-berry/20"
+      }`}>
+        <span className="text-berry">{icon}</span>
+        {children}
+      </div>
+      {error && (
+        <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
+          <AlertCircle className="h-3 w-3" /> {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export { CheckCircle2 };
+=== src\lib\auth-schemas.ts ===
+import { z } from "zod";
+
+export const emailSchema = z.string().trim().email("Enter a valid email").max(255);
+export const passwordSchema = z
+  .string()
+  .min(8, "At least 8 characters")
+  .max(72, "Too long")
+  .regex(/[A-Z]/, "Include an uppercase letter")
+  .regex(/[a-z]/, "Include a lowercase letter")
+  .regex(/[0-9]/, "Include a number");
+
+export const usernameSchema = z
+  .string()
+  .trim()
+  .min(3, "At least 3 characters")
+  .max(24, "Max 24 characters")
+  .regex(/^[a-zA-Z0-9_.]+$/, "Letters, numbers, . or _ only");
+
+export const signUpSchema = z.object({
+  full_name: z.string().trim().min(2, "Enter your full name").max(80),
+  username: usernameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+});
+
+export const signInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Password required"),
+  remember: z.boolean().optional(),
+});
+
+export function passwordStrength(pw: string): { score: 0 | 1 | 2 | 3 | 4; label: string; color: string } {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+  if (/[0-9]/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw) && pw.length >= 12) s++;
+  const map = [
+    { label: "Too weak", color: "bg-destructive" },
+    { label: "Weak", color: "bg-destructive/70" },
+    { label: "Fair", color: "bg-blush" },
+    { label: "Strong", color: "bg-berry" },
+    { label: "Excellent", color: "bg-lime" },
+  ] as const;
+  const score = Math.min(s, 4) as 0 | 1 | 2 | 3 | 4;
+  return { score, ...map[score] };
+}
+
+=== src\routes\index.tsx (first 60 lines) ===
+import { createFileRoute, Link } from "@tanstack/react-router";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { Zap, Sparkles, ArrowRight } from "lucide-react";
+
+import { supabase } from "@/integrations/supabase/client";
+
+import { BottomNav } from "@/components/ml/bottom-nav";
+
+import { Section, Rail } from "@/components/ml/section";
+
+import { Chip, ChipRow } from "@/components/ml/chips";
+
+import { ProductCard, type ProductCardData } from "@/components/ml/product-card";
+
+import { StoreCard, type StoreCardData } from "@/components/ml/store-card";
+
+import { ProductSkeletonGrid } from "@/components/ml/states";
+
+import { TopBar } from "@/components/ml/top-bar";
+
+import { SearchBar } from "@/components/ml/search-bar";
+
+import { getRecentlyViewedIds } from "@/lib/recently-viewed";
+
+import {
+
+  DEMO_PRODUCTS, DEMO_STORES, CATEGORY_CHIPS, POPULAR_CATEGORIES,
+
+  FUTURE_LANES, AI_FEATURES, IMAGES,
+
+} from "@/lib/demo-data";
+
+
+
+export const Route = createFileRoute("/")({
+
+  head: () => ({
+
+    meta: [
+
+      { title: "MaeLove — Luxury Boutique Marketplace" },
+
+      { name: "description", content: "Shop luxury boutique fashion, jewellery and shoes from independent East African designers. Trusted sellers, worldwide delivery." },
+
+      { property: "og:title", content: "MaeLove — Luxury Boutique Marketplace" },
+
+      { property: "og:description", content: "Discover trending pieces, flash deals and featured boutiques on MaeLove." },
+
+      { property: "og:type", content: "website" },
+
+      { name: "twitter:card", content: "summary_large_image" },
+
+    ],
+
+  }),
+

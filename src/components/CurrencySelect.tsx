@@ -1,4 +1,4 @@
-import { useCurrencies } from "@/lib/currency";
+import { useCurrencies } from "@/lib/money";
 
 export default function CurrencySelect({
   value,

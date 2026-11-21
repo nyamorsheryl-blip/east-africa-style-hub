@@ -60,9 +60,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MaeLove — East Africa's Boutique Fashion Marketplace" },
+      { title: "MaeLove" },
       { name: "description", content: "Discover and shop boutique fashion from East Africa. Handcrafted clothing, jewellery, accessories & more from independent designers." },
-      { property: "og:title", content: "MaeLove — East Africa's Boutique Fashion Marketplace" },
+      { property: "og:title", content: "MaeLove" },
       { property: "og:description", content: "Discover boutique fashion, handmade goods and local designer brands from across East Africa." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -91,7 +91,25 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function useFirstVisitRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    try {
+      const path = window.location.pathname;
+      const skip = path.startsWith("/auth") || path.startsWith("/admin") || path.startsWith("/privacy") || path.startsWith("/.");
+      if (skip || localStorage.getItem("maelove:seen-welcome")) return;
+      supabase.auth.getSession().then(({ data }) => {
+        localStorage.setItem("maelove:seen-welcome", "1");
+        if (!data.session) router.navigate({ to: "/auth" });
+      });
+    } catch {
+      /* storage blocked: do nothing */
+    }
+  }, [router]);
+}
+
 function RootComponent() {
+  useFirstVisitRedirect();
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 

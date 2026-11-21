@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/use-session"; import { useMoney } from "@/lib/currency";
+import { useSession } from "@/hooks/use-session"; import { useMoney } from "@/lib/money";
 
 export interface CartItem {
   productId: string;

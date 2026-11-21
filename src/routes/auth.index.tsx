@@ -99,6 +99,10 @@ function AuthWelcome() {
         </Link>
       </p>
 
+      <p className="text-center text-sm">
+        <Link to="/" className="font-semibold text-plum/80 underline underline-offset-4">Continue browsing</Link>
+      </p>
+
       <p className="text-center text-[11px] text-muted-foreground px-6">
         By continuing you agree to MaeLove's Terms of Service and Privacy Policy.
       </p>

@@ -8,7 +8,7 @@ import {
   MapPin, FileText, Info, HelpCircle, Sparkles, TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useMoney } from "@/lib/currency"; import { ProductVideoPlayer } from "@/components/ProductVideo";
+import { useMoney } from "@/lib/money"; import { ProductVideoPlayer } from "@/components/ProductVideo";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist-hook";
 import { useSession } from "@/hooks/use-session";

@@ -1,9 +1,8 @@
-import { GoogleButton } from "@/components/auth/google-button";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signInSchema } from "@/lib/auth-schemas";
-import { toast } from "sonner";
+import { toast } from "sonner"; import GoogleButton from "@/components/GoogleButton";
 import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Lock } from "lucide-react";
 import { Field } from "./auth.signup";
 
@@ -36,12 +35,13 @@ function LoginPage() {
     setLoading(true);
     setErrors({});
     try {
+      localStorage.setItem("maelove:remember", remember ? "1" : "0");
       const { error } = await supabase.auth.signInWithPassword({
         email: parsed.data.email,
         password: parsed.data.password,
       });
       if (error) throw error;
-      localStorage.setItem("maelove:remember", remember ? "1" : "0");
+
       toast.success("Welcome back");
       if (next) { window.location.href = next; return; }
       navigate({ to: "/" });
@@ -67,7 +67,7 @@ function LoginPage() {
       <h1 className="mt-3 font-display text-2xl font-black">Welcome back</h1>
       <p className="text-sm text-muted-foreground">Sign in to continue shopping and selling.</p>
 
-      <form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>
+      <GoogleButton next={next} /><form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>
         <Field icon={<Mail className="h-4 w-4" />} label="Email" error={errors.email}>
           <input
             type="email" autoComplete="email" value={form.email}
@@ -114,16 +114,6 @@ function LoginPage() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
-
-      <div className="mt-6 space-y-4">
-        <div className="relative flex py-2 items-center">
-          <div className="flex-grow border-t border-muted"></div>
-          <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase">Or</span>
-          <div className="flex-grow border-t border-muted"></div>
-        </div>
-
-        <GoogleButton />
-      </div>
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
         New to MaeLove?{" "}

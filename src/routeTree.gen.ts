@@ -33,6 +33,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthOnboardingRouteImport } from './routes/auth.onboarding'
@@ -167,6 +168,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthForgotRoute = AuthForgotRouteImport.update({
   id: '/forgot',
   path: '/forgot',
@@ -248,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/login': typeof AdminLoginRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/onboarding': typeof AuthOnboardingRoute
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/login': typeof AdminLoginRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/onboarding': typeof AuthOnboardingRoute
@@ -322,6 +330,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin_/login': typeof AdminLoginRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/onboarding': typeof AuthOnboardingRoute
@@ -361,6 +370,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/login'
+    | '/auth/callback'
     | '/auth/forgot'
     | '/auth/login'
     | '/auth/onboarding'
@@ -397,6 +407,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/login'
+    | '/auth/callback'
     | '/auth/forgot'
     | '/auth/login'
     | '/auth/onboarding'
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin_/login'
+    | '/auth/callback'
     | '/auth/forgot'
     | '/auth/login'
     | '/auth/onboarding'
@@ -649,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/auth/forgot': {
       id: '/auth/forgot'
       path: '/forgot'
@@ -730,6 +749,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotRoute: typeof AuthForgotRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthOnboardingRoute: typeof AuthOnboardingRoute
@@ -740,6 +760,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotRoute: AuthForgotRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthOnboardingRoute: AuthOnboardingRoute,

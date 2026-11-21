@@ -42,11 +42,11 @@ export const Route = createFileRoute("/")({
 
     meta: [
 
-      { title: "MaeLove — Luxury Boutique Marketplace" },
+      { title: "MaeLove" },
 
       { name: "description", content: "Shop luxury boutique fashion, jewellery and shoes from independent East African designers. Trusted sellers, worldwide delivery." },
 
-      { property: "og:title", content: "MaeLove — Luxury Boutique Marketplace" },
+      { property: "og:title", content: "MaeLove" },
 
       { property: "og:description", content: "Discover trending pieces, flash deals and featured boutiques on MaeLove." },
 

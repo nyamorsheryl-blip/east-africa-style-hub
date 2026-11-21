@@ -1,10 +1,9 @@
-import { GoogleButton } from "@/components/auth/google-button";
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { signUpSchema, passwordStrength } from "@/lib/auth-schemas";
-import { toast } from "sonner";
+import { toast } from "sonner"; import GoogleButton from "@/components/GoogleButton";
 import { Eye, EyeOff, Loader2, ArrowLeft, Mail, User, AtSign, Lock, CheckCircle2, AlertCircle } from "lucide-react";
 
 const search = z.object({ intent: z.enum(["shop", "sell", "deliver"]).optional() });
@@ -54,6 +53,7 @@ function SignUpPage() {
         return;
       }
 
+      localStorage.setItem("maelove:remember", "1");
       const { data, error } = await supabase.auth.signUp({
         email: parsed.data.email,
         password: parsed.data.password,
@@ -99,7 +99,7 @@ function SignUpPage() {
         {intent === "sell" ? "Set up your boutique in a few taps." : intent === "deliver" ? "Sign up to start delivering and earning." : "Shop, sell and connect across East Africa."}
       </p>
 
-      <form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>
+      <GoogleButton intent={intent} /><form onSubmit={onSubmit} className="mt-5 space-y-3.5" noValidate>
         <Field icon={<User className="h-4 w-4" />} label="Full name" error={errors.full_name}>
           <input
             type="text" autoComplete="name" value={form.full_name}
@@ -161,16 +161,6 @@ function SignUpPage() {
           {loading ? "Creating account…" : "Create account"}
         </button>
       </form>
-
-      <div className="mt-6 space-y-4">
-        <div className="relative flex py-2 items-center">
-          <div className="flex-grow border-t border-muted"></div>
-          <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase">Or</span>
-          <div className="flex-grow border-t border-muted"></div>
-        </div>
-
-        <GoogleButton />
-      </div>
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
         Already a member?{" "}

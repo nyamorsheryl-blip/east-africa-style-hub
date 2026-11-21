@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, Star, Eye } from "lucide-react";
-import { useMoney } from "@/lib/currency";
+import { useMoney } from "@/lib/money";
 import { useWishlist } from "@/lib/wishlist-hook";
 import { QuickView } from "@/components/ml/quick-view";
 

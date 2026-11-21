@@ -27,6 +27,23 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 
+const rememberMeStorage = {
+  getItem: (k: string) => localStorage.getItem(k) ?? sessionStorage.getItem(k),
+  setItem: (k: string, v: string) => {
+    if (localStorage.getItem('maelove:remember') === '0') {
+      sessionStorage.setItem(k, v);
+      localStorage.removeItem(k);
+    } else {
+      localStorage.setItem(k, v);
+      sessionStorage.removeItem(k);
+    }
+  },
+  removeItem: (k: string) => {
+    localStorage.removeItem(k);
+    sessionStorage.removeItem(k);
+  },
+};
+
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
@@ -48,7 +65,7 @@ function createSupabaseClient() {
       fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
     },
     auth: {
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      storage: typeof window !== 'undefined' ? rememberMeStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
     }

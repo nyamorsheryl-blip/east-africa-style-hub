@@ -10,7 +10,7 @@ import { useSession } from "@/hooks/use-session";
 
 import { SellerEarningsCard } from "@/components/seller-earnings-card";
 
-import { CATEGORIES, COUNTRIES, formatMoney, slugify } from "@/lib/format"; import CurrencySelect from "@/components/CurrencySelect"; import { ProductVideoUpload } from "@/components/ProductVideo"; import { usePreferredCurrency, useMoney, formatMinor } from "@/lib/currency";
+import { CATEGORIES, COUNTRIES, formatMoney, slugify } from "@/lib/format"; import CurrencySelect from "@/components/CurrencySelect"; import { ProductVideoUpload } from "@/components/ProductVideo"; import { usePreferredCurrency, useMoney, formatMinor } from "@/lib/money";
 
 import { toast } from "sonner";
 

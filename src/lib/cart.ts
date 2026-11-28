@@ -9,11 +9,18 @@ export interface CartItem {
   imageUrl?: string;
   sellerId: string;
   quantity: number;
+  /** chosen size and colour; empty string when the product has no options */
+  size?: string;
+  color?: string;
   /** true when the product was unpublished, deleted or sold out */
   unavailable?: boolean;
 }
 
 const KEY = "maelove.cart";
+
+// The same product in a different size or colour is a separate bag line.
+const sameLine = (c: { productId: string; size?: string; color?: string }, productId: string, size = "", color = "") =>
+  c.productId === productId && (c.size ?? "") === size && (c.color ?? "") === color;
 
 function read(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -27,6 +34,8 @@ function write(items: CartItem[]) {
 type Row = {
   product_id: string;
   quantity: number;
+  size: string | null;
+  color: string | null;
   products: {
     title: string | null;
     price_cents: number | null;    currency: string | null;
@@ -47,6 +56,8 @@ function rowToItem(r: Row): CartItem {
     imageUrl: p?.images?.[0],
     sellerId: p?.owner_id ?? "",
     quantity: r.quantity,
+    size: r.size ?? "",
+    color: r.color ?? "",
     unavailable: !p || p.published === false || (p.stock !== null && p.stock <= 0),
   };
 }
@@ -54,10 +65,20 @@ function rowToItem(r: Row): CartItem {
 async function fetchRemote(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from("cart_items")
-    .select("product_id, quantity, products(title, price_cents, sale_price_cents, currency, images, owner_id, published, stock)")
+    .select("product_id, quantity, size, color, products(title, price_cents, sale_price_cents, currency, images, owner_id, published, stock)")
     .eq("user_id", userId);
   if (error) throw error;
   return ((data ?? []) as unknown as Row[]).map(rowToItem);
+}
+
+// Insert or update one bag line (product + size + colour).
+async function writeRemote(userId: string, productId: string, size: string, color: string, quantity: number) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+  const { data: row } = await db.from("cart_items").select("id")
+    .eq("user_id", userId).eq("product_id", productId).eq("size", size).eq("color", color).maybeSingle();
+  if (row) return db.from("cart_items").update({ quantity }).eq("id", row.id);
+  return db.from("cart_items").insert({ user_id: userId, product_id: productId, quantity, size, color });
 }
 
 /**
@@ -76,8 +97,6 @@ export function useCart() {
     try { setItems(await fetchRemote(userId)); } catch { /* keep last known */ }
   }, [userId]);
 
-  // Always call the latest refresh from stable effects below, without making
-  // refresh itself a dependency (its identity can still change harmlessly).
   const refreshRef = useRef(refresh);
   useEffect(() => { refreshRef.current = refresh; }, [refresh]);
 
@@ -92,7 +111,6 @@ export function useCart() {
   }, [userId]);
 
   // Remote cart: load once + merge any guest bag, keyed only on the user id
-  // so it doesn't re-run just because `user` or `refresh` got a new identity.
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
@@ -103,11 +121,9 @@ export function useCart() {
         try {
           const remote = await fetchRemote(userId);
           for (const g of guest) {
-            const existing = remote.find((r) => r.productId === g.productId);
-            await supabase.from("cart_items").upsert(
-              { user_id: userId, product_id: g.productId, quantity: (existing?.quantity ?? 0) + g.quantity },
-              { onConflict: "user_id,product_id" },
-            );
+            const gs = g.size ?? "", gc = g.color ?? "";
+            const existing = remote.find((r) => sameLine(r, g.productId, gs, gc));
+            await writeRemote(userId, g.productId, gs, gc, (existing?.quantity ?? 0) + g.quantity);
           }
           localStorage.removeItem(KEY);
         } catch { /* ignore merge failure */ }
@@ -124,20 +140,12 @@ export function useCart() {
 
   // Live updates: any change to this shopper's cart rows, or to a product in
   // it (price, stock, published), refreshes badge + totals instantly.
-  // Kept in its own effect, keyed only on the user id, so it is created
-  // exactly once per login and torn down exactly once per logout — no
-  // rebuild races with an in-flight subscribe() on the same channel name.
-    useEffect(() => {
+  useEffect(() => {
     if (!userId) return;
 
     const topic = `cart-${userId}`;
 
-    // In dev, React's Strict Mode runs this effect's setup twice in a row
-    // before the first cleanup has finished removing the old channel. If we
-    // blindly created a new channel every time, the second run could end up
-    // attaching new .on() listeners to a channel that's already subscribed,
-    // which is exactly the error this guard avoids: reuse the existing
-    // channel for this user instead of creating a duplicate.
+    // Reuse an existing channel for this user (React Strict Mode runs setup twice in dev).
     const existing = supabase.getChannels().find((c) => c.topic === `realtime:${topic}`);
     const channel = existing ?? supabase
       .channel(topic)
@@ -155,39 +163,52 @@ export function useCart() {
   }, [userId]);
 
   const add = useCallback(async (item: Omit<CartItem, "quantity">, qty = 1) => {
+    const size = item.size ?? "", color = item.color ?? "";
     if (!userId) {
       const cur = read();
-      const ex = cur.find((c) => c.productId === item.productId);
-      if (ex) ex.quantity += qty; else cur.push({ ...item, quantity: qty });
+      const ex = cur.find((c) => sameLine(c, item.productId, size, color));
+      if (ex) ex.quantity += qty; else cur.push({ ...item, size, color, quantity: qty });
       write(cur);
       return;
     }
-    const existing = items.find((c) => c.productId === item.productId);
+    const existing = items.find((c) => sameLine(c, item.productId, size, color));
     setItems((prev) => existing
-      ? prev.map((c) => c.productId === item.productId ? { ...c, quantity: c.quantity + qty } : c)
-      : [...prev, { ...item, quantity: qty }]);
-    await supabase.from("cart_items").upsert(
-      { user_id: userId, product_id: item.productId, quantity: (existing?.quantity ?? 0) + qty },
-      { onConflict: "user_id,product_id" },
-    );
+      ? prev.map((c) => sameLine(c, item.productId, size, color) ? { ...c, quantity: c.quantity + qty } : c)
+      : [...prev, { ...item, size, color, quantity: qty }]);
+    await writeRemote(userId, item.productId, size, color, (existing?.quantity ?? 0) + qty);
     await refresh();
   }, [userId, items, refresh]);
 
-  const remove = useCallback(async (productId: string) => {
-    if (!userId) { write(read().filter((c) => c.productId !== productId)); return; }
-    setItems((prev) => prev.filter((c) => c.productId !== productId));
-    await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", productId);
+  // size / colour are optional: leave them out to remove every variant of the product.
+  const remove = useCallback(async (productId: string, size?: string, color?: string) => {
+    const hit = (c: CartItem) => c.productId === productId
+      && (size === undefined || (c.size ?? "") === size)
+      && (color === undefined || (c.color ?? "") === color);
+    if (!userId) { write(read().filter((c) => !hit(c))); return; }
+    setItems((prev) => prev.filter((c) => !hit(c)));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let q = (supabase as any).from("cart_items").delete().eq("user_id", userId).eq("product_id", productId);
+    if (size !== undefined) q = q.eq("size", size);
+    if (color !== undefined) q = q.eq("color", color);
+    await q;
     await refresh();
   }, [userId, refresh]);
 
-  const setQty = useCallback(async (productId: string, qty: number) => {
+  const setQty = useCallback(async (productId: string, qty: number, size?: string, color?: string) => {
     const next = Math.max(1, qty);
+    const hit = (c: CartItem) => c.productId === productId
+      && (size === undefined || (c.size ?? "") === size)
+      && (color === undefined || (c.color ?? "") === color);
     if (!userId) {
-      write(read().map((c) => c.productId === productId ? { ...c, quantity: next } : c));
+      write(read().map((c) => hit(c) ? { ...c, quantity: next } : c));
       return;
     }
-    setItems((prev) => prev.map((c) => c.productId === productId ? { ...c, quantity: next } : c));
-    await supabase.from("cart_items").update({ quantity: next }).eq("user_id", userId).eq("product_id", productId);
+    setItems((prev) => prev.map((c) => hit(c) ? { ...c, quantity: next } : c));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let q = (supabase as any).from("cart_items").update({ quantity: next }).eq("user_id", userId).eq("product_id", productId);
+    if (size !== undefined) q = q.eq("size", size);
+    if (color !== undefined) q = q.eq("color", color);
+    await q;
     await refresh();
   }, [userId, refresh]);
 

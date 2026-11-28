@@ -118,6 +118,22 @@ function CartPage() {
 
   const [customerMessage, setCustomerMessage] = useState<string | null>(null);
 
+  // Saved delivery addresses (prefills the default one)
+  type SavedAddr = { id: string; label: string; full_name: string; phone: string; line1: string; city: string; is_default: boolean };
+  const [savedAddrs, setSavedAddrs] = useState<SavedAddr[]>([]);
+  const [saveAddr, setSaveAddr] = useState(true);
+  useEffect(() => {
+    if (!user) { setSavedAddrs([]); return; }
+    (supabase as any).from("addresses").select("id, label, full_name, phone, line1, city, is_default")
+      .eq("user_id", user.id).order("is_default", { ascending: false }).order("created_at", { ascending: false })
+      .then(({ data }: { data: SavedAddr[] | null }) => {
+        const list = data ?? [];
+        setSavedAddrs(list);
+        const d = list.find((a) => a.is_default) ?? list[0];
+        if (d) { setName((n) => n || d.full_name); setPhone((p) => p || d.phone); setAddressLine((a) => a || d.line1); setCity((c) => c || d.city); }
+      });
+  }, [user?.id]);
+
 
 
   const shipUsd = DELIVERY.find((d) => d.id === delivery)?.price ?? 0; const ship = money.convert(shipUsd, "USD") ?? shipUsd;
@@ -305,7 +321,7 @@ function CartPage() {
       // The server prices the order, applies the coupon, adds the delivery fee
       // and records commission, so none of that is trusted from the browser.
       const { data: placed, error: placeErr } = await (supabase as any).rpc("place_order", {
-        p_items: cart.available.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
+        p_items: cart.available.map((i) => ({ product_id: i.productId, quantity: i.quantity, size: i.size ?? "", color: i.color ?? "" })),
         p_delivery_option: delivery,
         p_coupon_code: appliedCode ?? null,
         p_shipping: { name, phone, addressLine, city },
@@ -314,6 +330,10 @@ function CartPage() {
       const order = { id: (placed as { order_id: string }).order_id };
 
       setOrderId(order.id);
+
+      if (saveAddr && user && !savedAddrs.some((a) => a.line1 === addressLine && a.city === city)) {
+        void (supabase as any).from("addresses").insert({ user_id: user.id, label: savedAddrs.length ? "Saved" : "Home", full_name: name, phone, line1: addressLine, city, is_default: savedAddrs.length === 0 });
+      }
 
       await triggerStkPush(order.id, phone);
 
@@ -457,7 +477,7 @@ function CartPage() {
 
             {cart.items.map((i) => (
 
-              <div key={i.productId} className={`card-ml slide-up flex gap-4 ${i.unavailable ? "opacity-70" : ""}`}>
+              <div key={`${i.productId}-${i.size ?? ""}-${i.color ?? ""}`} className={`card-ml slide-up flex gap-4 ${i.unavailable ? "opacity-70" : ""}`}>
 
                 <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
 
@@ -468,6 +488,10 @@ function CartPage() {
                 <div className="min-w-0 flex-1">
 
                   <div className="line-clamp-2 text-[13px] font-bold leading-snug">{i.title}</div>
+
+                  {(i.size || i.color) && (
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">{[i.size ? "Size " + i.size : "", i.color].filter(Boolean).join(" | ")}</div>
+                  )}
 
                   {i.unavailable ? (
 
@@ -487,11 +511,11 @@ function CartPage() {
 
                     <div className="mt-3 flex items-center gap-2">
 
-                      <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity - 1)} aria-label="Decrease quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">−</button>
+                      <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity - 1, i.size, i.color)} aria-label="Decrease quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">−</button>
 
                       <span className="w-6 text-center text-sm font-bold">{i.quantity}</span>
 
-                      <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity + 1)} aria-label="Increase quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">+</button>
+                      <button disabled={i.unavailable} onClick={() => cart.setQty(i.productId, i.quantity + 1, i.size, i.color)} aria-label="Increase quantity" className="press glass h-8 w-8 rounded-full text-sm font-black disabled:opacity-40">+</button>
 
                     </div>
 
@@ -501,7 +525,7 @@ function CartPage() {
 
                 {step === "review" && (
 
-                  <button onClick={() => cart.remove(i.productId)} aria-label="Remove item" className="press h-9 w-9 text-muted-foreground hover:text-primary">
+                  <button onClick={() => cart.remove(i.productId, i.size, i.color)} aria-label="Remove item" className="press h-9 w-9 text-muted-foreground hover:text-primary">
 
                     <Trash2 className="mx-auto h-4 w-4" />
 
@@ -707,6 +731,18 @@ function CartPage() {
 
               <h2 className="mb-4 text-[15px] font-black tracking-tight">Delivery details</h2>
 
+              {savedAddrs.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {savedAddrs.map((a) => (
+                    <button type="button" key={a.id}
+                      onClick={() => { setName(a.full_name); setPhone(a.phone); setAddressLine(a.line1); setCity(a.city); }}
+                      className="press rounded-full glass px-3.5 py-2 text-[12px] font-bold">
+                      {a.label}: {a.line1}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <form onSubmit={handleSubmitAddress} className="space-y-3">
 
                 <Field label="Full name" value={name} onChange={setName} placeholder="Jane Wanjiru" />
@@ -716,6 +752,13 @@ function CartPage() {
                 <Field label="Address" value={addressLine} onChange={setAddressLine} placeholder="Street, building, apartment" />
 
                 <Field label="City / Town" value={city} onChange={setCity} placeholder="Nairobi" />
+
+                {user && !savedAddrs.some((a) => a.line1 === addressLine && a.city === city) && (
+                  <label className="flex items-center gap-2 text-[12px] font-semibold text-muted-foreground">
+                    <input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} className="h-4 w-4" />
+                    Save this address for next time
+                  </label>
+                )}
 
 
 

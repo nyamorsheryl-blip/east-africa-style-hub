@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AddressesRouteImport } from './routes/addresses'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as DeliveryRouteImport } from './routes/delivery'
 import { Route as DeliveryPolicyRouteImport } from './routes/delivery-policy'
+import { Route as DeliveryScanRouteImport } from './routes/delivery-scan'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as HelpRouteImport } from './routes/help'
@@ -32,6 +34,7 @@ import { Route as SellerAgreementRouteImport } from './routes/seller-agreement'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SocialRouteImport } from './routes/social'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ThriftRouteImport } from './routes/thrift'
 import { Route as WishlistRouteImport } from './routes/wishlist'
@@ -47,6 +50,7 @@ import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthVerifyRouteImport } from './routes/auth.verify'
 import { Route as LookbookIdRouteImport } from './routes/lookbook.$id'
+import { Route as OrderQrIdRouteImport } from './routes/order-qr.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as StoreSlugRouteImport } from './routes/store.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -60,6 +64,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AddressesRoute = AddressesRouteImport.update({
+  id: '/addresses',
+  path: '/addresses',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -85,6 +94,11 @@ const DeliveryRoute = DeliveryRouteImport.update({
 const DeliveryPolicyRoute = DeliveryPolicyRouteImport.update({
   id: '/delivery-policy',
   path: '/delivery-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeliveryScanRoute = DeliveryScanRouteImport.update({
+  id: '/delivery-scan',
+  path: '/delivery-scan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -167,6 +181,11 @@ const SocialRoute = SocialRouteImport.update({
   path: '/social',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -244,6 +263,11 @@ const LookbookIdRoute = LookbookIdRouteImport.update({
   path: '/lookbook/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrderQrIdRoute = OrderQrIdRouteImport.update({
+  id: '/order-qr/$id',
+  path: '/order-qr/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
@@ -269,11 +293,13 @@ const Char91DotmcpChar93InvokeToolToolRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/addresses': typeof AddressesRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/delivery': typeof DeliveryRoute
   '/delivery-policy': typeof DeliveryPolicyRoute
+  '/delivery-scan': typeof DeliveryScanRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/help': typeof HelpRoute
@@ -290,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
@@ -304,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/lookbook/$id': typeof LookbookIdRoute
+  '/order-qr/$id': typeof OrderQrIdRoute
   '/product/$id': typeof ProductIdRoute
   '/store/$slug': typeof StoreSlugRoute
   '/auth/': typeof AuthIndexRoute
@@ -313,10 +341,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/addresses': typeof AddressesRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/delivery': typeof DeliveryRoute
   '/delivery-policy': typeof DeliveryPolicyRoute
+  '/delivery-scan': typeof DeliveryScanRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/help': typeof HelpRoute
@@ -333,6 +363,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
@@ -347,6 +378,7 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/lookbook/$id': typeof LookbookIdRoute
+  '/order-qr/$id': typeof OrderQrIdRoute
   '/product/$id': typeof ProductIdRoute
   '/store/$slug': typeof StoreSlugRoute
   '/auth': typeof AuthIndexRoute
@@ -357,11 +389,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/addresses': typeof AddressesRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/delivery': typeof DeliveryRoute
   '/delivery-policy': typeof DeliveryPolicyRoute
+  '/delivery-scan': typeof DeliveryScanRoute
   '/discover': typeof DiscoverRoute
   '/explore': typeof ExploreRoute
   '/help': typeof HelpRoute
@@ -378,6 +412,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/thrift': typeof ThriftRoute
   '/wishlist': typeof WishlistRoute
@@ -392,6 +427,7 @@ export interface FileRoutesById {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/lookbook/$id': typeof LookbookIdRoute
+  '/order-qr/$id': typeof OrderQrIdRoute
   '/product/$id': typeof ProductIdRoute
   '/store/$slug': typeof StoreSlugRoute
   '/auth/': typeof AuthIndexRoute
@@ -403,11 +439,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/addresses'
     | '/admin'
     | '/auth'
     | '/cart'
     | '/delivery'
     | '/delivery-policy'
+    | '/delivery-scan'
     | '/discover'
     | '/explore'
     | '/help'
@@ -424,6 +462,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/social'
+    | '/support'
     | '/terms'
     | '/thrift'
     | '/wishlist'
@@ -438,6 +477,7 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify'
     | '/lookbook/$id'
+    | '/order-qr/$id'
     | '/product/$id'
     | '/store/$slug'
     | '/auth/'
@@ -447,10 +487,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/addresses'
     | '/admin'
     | '/cart'
     | '/delivery'
     | '/delivery-policy'
+    | '/delivery-scan'
     | '/discover'
     | '/explore'
     | '/help'
@@ -467,6 +509,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/social'
+    | '/support'
     | '/terms'
     | '/thrift'
     | '/wishlist'
@@ -481,6 +524,7 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify'
     | '/lookbook/$id'
+    | '/order-qr/$id'
     | '/product/$id'
     | '/store/$slug'
     | '/auth'
@@ -490,11 +534,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/addresses'
     | '/admin'
     | '/auth'
     | '/cart'
     | '/delivery'
     | '/delivery-policy'
+    | '/delivery-scan'
     | '/discover'
     | '/explore'
     | '/help'
@@ -511,6 +557,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/social'
+    | '/support'
     | '/terms'
     | '/thrift'
     | '/wishlist'
@@ -525,6 +572,7 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify'
     | '/lookbook/$id'
+    | '/order-qr/$id'
     | '/product/$id'
     | '/store/$slug'
     | '/auth/'
@@ -535,11 +583,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AddressesRoute: typeof AddressesRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRouteWithChildren
   CartRoute: typeof CartRoute
   DeliveryRoute: typeof DeliveryRoute
   DeliveryPolicyRoute: typeof DeliveryPolicyRoute
+  DeliveryScanRoute: typeof DeliveryScanRoute
   DiscoverRoute: typeof DiscoverRoute
   ExploreRoute: typeof ExploreRoute
   HelpRoute: typeof HelpRoute
@@ -556,6 +606,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   SocialRoute: typeof SocialRoute
+  SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   ThriftRoute: typeof ThriftRoute
   WishlistRoute: typeof WishlistRoute
@@ -563,6 +614,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
   LookbookIdRoute: typeof LookbookIdRoute
+  OrderQrIdRoute: typeof OrderQrIdRoute
   ProductIdRoute: typeof ProductIdRoute
   StoreSlugRoute: typeof StoreSlugRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -583,6 +635,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/addresses': {
+      id: '/addresses'
+      path: '/addresses'
+      fullPath: '/addresses'
+      preLoaderRoute: typeof AddressesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -618,6 +677,13 @@ declare module '@tanstack/react-router' {
       path: '/delivery-policy'
       fullPath: '/delivery-policy'
       preLoaderRoute: typeof DeliveryPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delivery-scan': {
+      id: '/delivery-scan'
+      path: '/delivery-scan'
+      fullPath: '/delivery-scan'
+      preLoaderRoute: typeof DeliveryScanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -732,6 +798,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SocialRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -837,6 +910,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LookbookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/order-qr/$id': {
+      id: '/order-qr/$id'
+      path: '/order-qr/$id'
+      fullPath: '/order-qr/$id'
+      preLoaderRoute: typeof OrderQrIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -895,11 +975,13 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AddressesRoute: AddressesRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRouteWithChildren,
   CartRoute: CartRoute,
   DeliveryRoute: DeliveryRoute,
   DeliveryPolicyRoute: DeliveryPolicyRoute,
+  DeliveryScanRoute: DeliveryScanRoute,
   DiscoverRoute: DiscoverRoute,
   ExploreRoute: ExploreRoute,
   HelpRoute: HelpRoute,
@@ -916,6 +998,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   SocialRoute: SocialRoute,
+  SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   ThriftRoute: ThriftRoute,
   WishlistRoute: WishlistRoute,
@@ -924,6 +1007,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
   LookbookIdRoute: LookbookIdRoute,
+  OrderQrIdRoute: OrderQrIdRoute,
   ProductIdRoute: ProductIdRoute,
   StoreSlugRoute: StoreSlugRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,

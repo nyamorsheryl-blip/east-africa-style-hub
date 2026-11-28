@@ -430,7 +430,7 @@ function Home() {
 
       {/* Flash deals */}
 
-      <Section title="Flash deals" subtitle="Ends in 04 : 12 : 55" action="All deals" actionTo="/explore">
+      <Section title="Flash deals" subtitle="Limited-time offers from our sellers" action="All deals" actionTo="/explore">
 
         <div className="px-5">
 
@@ -514,7 +514,7 @@ function Home() {
 
       {/* Nearby sellers */}
 
-      <Section title="Nearby sellers" subtitle="Within 12 km of Nairobi CBD">
+      <Section title="Nearby sellers" subtitle="Boutiques near you">
 
         <div className="space-y-3 px-5">
 

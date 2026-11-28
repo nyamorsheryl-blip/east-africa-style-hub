@@ -299,7 +299,9 @@ function OrdersTab() {
 }
 
 function CustomersTab() {
-  const { data, isLoading } = useQuery({
+  const [q, setQ] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin-customers"],
     queryFn: async () => {
       const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(200);
@@ -307,15 +309,50 @@ function CustomersTab() {
       return data;
     },
   });
+
+  async function setSuspended(p: any, suspend: boolean) {
+    const who = p.full_name ?? p.username ?? "this user";
+    let reason: string | null = null;
+    if (suspend) {
+      reason = window.prompt(`Suspend ${who}? Add a reason (optional):`, "");
+      if (reason === null) return;
+    } else if (!window.confirm(`Reactivate ${who}?`)) {
+      return;
+    }
+    setBusy(p.id);
+    const { error } = await (supabase as any).rpc("admin_set_suspension", { p_user: p.id, p_suspend: suspend, p_reason: reason });
+    setBusy(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(suspend ? "Account suspended" : "Account reactivated");
+    void refetch();
+  }
+
   if (isLoading) return <Loading />;
+  const needle = q.trim().toLowerCase();
+  const rows = (data ?? []).filter((p: any) => !needle || [p.full_name, p.username].some((v: string | null) => (v ?? "").toLowerCase().includes(needle)));
   return (
-    <div className="grid gap-3 md:grid-cols-2">
-      {(data ?? []).map((p: any) => (
-        <div key={p.id} className="glass rounded-2xl p-4">
-          <div className="font-bold">{p.full_name ?? p.username ?? "Unnamed"}</div>
-          <div className="text-xs text-muted-foreground">{p.country ?? "—"} · {p.role ?? "buyer"}</div>
-        </div>
-      ))}
+    <div>
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search customers by name or username" className="glass mb-3 w-full rounded-2xl px-4 py-3 text-sm outline-none" />
+      <div className="grid gap-3 md:grid-cols-2">
+        {rows.map((p: any) => (
+          <div key={p.id} className="glass rounded-2xl p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="font-bold">{p.full_name ?? p.username ?? "Unnamed"}</div>
+                <div className="text-xs text-muted-foreground">{p.country ?? "-"} | {p.role ?? "buyer"}</div>
+                {p.suspended_at && <div className="mt-1 text-xs font-bold text-destructive">Suspended{p.suspended_reason ? ": " + p.suspended_reason : ""}</div>}
+              </div>
+              <button
+                disabled={busy === p.id}
+                onClick={() => setSuspended(p, !p.suspended_at)}
+                className={`press rounded-full px-3.5 py-1.5 text-xs font-bold disabled:opacity-50 ${p.suspended_at ? "bg-primary text-primary-foreground" : "glass text-destructive"}`}
+              >
+                {p.suspended_at ? "Reactivate" : "Suspend"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { SplashScreen } from "@/components/splash-screen";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -109,6 +110,21 @@ function useFirstVisitRedirect() {
 }
 
 function RootComponent() {
+  const [showSplash, setShowSplash] = useState(true);
+  useEffect(() => {
+    // Show the splash on every visit: at least 1.8s, and only once the page has finished loading.
+    const started = Date.now();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = () => {
+      timer = setTimeout(() => setShowSplash(false), Math.max(0, 1800 - (Date.now() - started)));
+    };
+    if (document.readyState === "complete") finish();
+    else window.addEventListener("load", finish, { once: true });
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("load", finish);
+    };
+  }, []);
   useFirstVisitRedirect();
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
@@ -129,6 +145,7 @@ function RootComponent() {
       </CurrencyProvider>
       <Toaster position="top-center" />
       <CookieBanner />
+      {showSplash && <SplashScreen />}
     </QueryClientProvider>
   );
 }

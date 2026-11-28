@@ -32,6 +32,7 @@ function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -91,6 +92,8 @@ function OnboardingPage() {
               name: prof?.full_name ? `${prof.full_name}'s boutique` : `@${prof?.username ?? "boutique"}`,
               slug: `${prof?.username ?? userId.slice(0, 8)}-${Date.now().toString(36)}`,
               seller_type: finalSellerType ?? "retail",
+              seller_agreement_accepted_at: new Date().toISOString(),
+              seller_agreement_version: "2026-11-21",
             });
             if (bErr) throw bErr;
           }
@@ -158,6 +161,10 @@ function OnboardingPage() {
           })}
         </div>
 
+        <label className="flex items-start gap-2 text-xs text-plum/80">
+          <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-berry/40 text-berry focus:ring-berry/30" />
+          <span>I have read and agree to the <a href="/seller-agreement" target="_blank" rel="noreferrer" className="font-semibold text-berry underline">Seller agreement</a>.</span>
+        </label>
         <div className="flex gap-3">
           <button
             onClick={() => setStep("role")}
@@ -168,7 +175,7 @@ function OnboardingPage() {
           </button>
           <button
             onClick={() => choice && void save(choice, sellerType)}
-            disabled={!sellerType || saving}
+            disabled={!sellerType || !agreed || saving}
             className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-berry py-4 text-sm font-semibold text-cream shadow-[var(--shadow-glow)] disabled:opacity-50 active:scale-[0.98] transition"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}

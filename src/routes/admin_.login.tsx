@@ -29,6 +29,7 @@ function AdminLoginPage() {
     setLoading(true);
     setErrors({});
     try {
+      localStorage.setItem("maelove:remember", "1");
       const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email: parsed.data.email,
         password: parsed.data.password,

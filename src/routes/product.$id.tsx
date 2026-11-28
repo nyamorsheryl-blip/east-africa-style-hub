@@ -17,6 +17,7 @@ import { Section, Rail } from "@/components/ml/section";
 import { ProductCard } from "@/components/ml/product-card";
 import { Skeleton } from "@/components/ml/states";
 import { ProductGallery } from "@/components/ml/gallery";
+import { TryOnButton } from "@/components/TryOn";
 import { Expandable } from "@/components/ml/expandable";
 import { ReviewsPanel, Stars } from "@/components/ml/reviews";
 import { ComingSoonCard } from "@/components/ml/coming-soon";
@@ -43,7 +44,7 @@ function ProductPage() {
   const { isSaved, toggle } = useWishlist();
   const { user } = useSession(); const money = useMoney();
   const navigate = useNavigate();
-  const [colour, setColour] = useState(SWATCHES[0].name);
+  const [colour, setColour] = useState<string | null>(null);
   const [size, setSize] = useState<string | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [added, setAdded] = useState(false);
@@ -114,10 +115,15 @@ function ProductPage() {
   const sales = 1240 + demo.reviews * 3;
   const trust = 98;
 
+  const sizeOptions = ((row?.sizes as string[] | null) ?? []).filter(Boolean);
+  const colourOptions = ((row?.colors as string[] | null) ?? []).filter(Boolean);
+
   function handleAddToBag() {
-    cart.add({ productId: id, title, priceCents: price, currency, imageUrl: base[0], sellerId: sellerId ?? "demo" });
+    if (sizeOptions.length && !size) { toast.error("Please choose a size"); return; }
+    if (colourOptions.length && !colour) { toast.error("Please choose a colour"); return; }
+    cart.add({ productId: id, title, priceCents: price, currency, imageUrl: base[0], sellerId: sellerId ?? "demo", size: size ?? "", color: colour ?? "" });
     setAdded(true);
-    toast.success(size ? `Added — size ${size}` : "Added to bag");
+    toast.success(`Added to bag${size ? " - size " + size : ""}${colour ? ", " + colour : ""}`);
   }
 
   async function askSeller() {
@@ -211,6 +217,7 @@ function ProductPage() {
         </div>
       </div>
 
+      <div className="mx-auto max-w-lg px-4 pb-2"><TryOnButton imageUrl={base[0]} title={title} defaultGarment={/dress|gown|jumpsuit|abaya/i.test(title) ? "dress" : /trouser|pant|jean|short|skirt|legging/i.test(title) ? "bottom" : "top"} className="press glass flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-[13px] font-extrabold" /></div>
       {row?.video_url ? (<div className="mx-auto max-w-3xl px-5 pt-2"><ProductVideoPlayer src={String(row?.video_url)} /></div>) : null}{/* Title + trust */}
       <div className="rise mx-auto max-w-3xl px-5 pt-2">
         <div className="flex flex-wrap items-center gap-2">
@@ -256,49 +263,54 @@ function ProductPage() {
           </div>
         </div>
 
-        {/* Colour */}
-        <div className="mt-7">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-[14px] font-black tracking-tight">Colour</h2>
-            <span className="text-[12px] text-muted-foreground">{colour}</span>
+        {colourOptions.length > 0 && (
+          <div className="mt-7">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-[14px] font-black tracking-tight">Colour</h2>
+              <span className="text-[12px] text-muted-foreground">{colour ?? "Select a colour"}</span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {colourOptions.map((c) => {
+                const hex = SWATCHES.find((s) => s.name.toLowerCase() === c.toLowerCase())?.hex;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setColour(c)}
+                    aria-pressed={colour === c}
+                    className={`press inline-flex min-h-11 items-center gap-2 rounded-2xl px-4 text-[13px] font-extrabold transition-colors ${colour === c ? "bg-foreground text-background" : "glass"}`}
+                  >
+                    {hex && <span className="h-4 w-4 rounded-full ring-1 ring-border" style={{ background: hex }} />}
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-3">
-            {SWATCHES.map((s) => (
-              <button
-                key={s.name}
-                onClick={() => setColour(s.name)}
-                aria-label={s.name}
-                aria-pressed={colour === s.name}
-                className={`press grid h-11 w-11 place-items-center rounded-full transition-all duration-300 ${colour === s.name ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "ring-1 ring-border"}`}
-              >
-                <span className="h-7 w-7 rounded-full" style={{ background: s.hex }} />
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
 
-        {/* Size */}
-        <div className="mt-7">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-[14px] font-black tracking-tight">Size</h2>
-            <button onClick={() => setGuideOpen(true)} className="press inline-flex items-center gap-1 text-[12px] font-extrabold text-primary">
-              <Ruler className="h-3.5 w-3.5" /> Size guide
-            </button>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {SIZES.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSize(s)}
-                aria-pressed={size === s}
-                className={`press min-h-11 min-w-11 rounded-2xl px-4 text-[13px] font-extrabold transition-colors ${size === s ? "bg-foreground text-background" : "glass"}`}
-              >
-                {s}
+        {sizeOptions.length > 0 && (
+          <div className="mt-7">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-[14px] font-black tracking-tight">Size</h2>
+              <button onClick={() => setGuideOpen(true)} className="press inline-flex items-center gap-1 text-[12px] font-extrabold text-primary">
+                <Ruler className="h-3.5 w-3.5" /> Size guide
               </button>
-            ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {sizeOptions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSize(s)}
+                  aria-pressed={size === s}
+                  className={`press min-h-11 min-w-11 rounded-2xl px-4 text-[13px] font-extrabold transition-colors ${size === s ? "bg-foreground text-background" : "glass"}`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            {!size && <p className="mt-2 text-[11px] text-muted-foreground">Please select a size.</p>}
           </div>
-          {!size && <p className="mt-2 text-[11px] text-muted-foreground">Select a size to see delivery dates for your area.</p>}
-        </div>
+        )}
 
         {/* Stock */}
         <div className="mt-6 card-ml">
@@ -352,7 +364,7 @@ function ProductPage() {
         <div className="mt-8 space-y-3">
           <Expandable title="Description" icon={<FileText className="h-4 w-4" />} defaultOpen>
             <p>{description}</p>
-            <p className="mt-3">Styled here in {colour.toLowerCase()}. Model is 176 cm and wears a size M.</p>
+            
           </Expandable>
           <Expandable title="Specifications, materials & care" icon={<Info className="h-4 w-4" />}>
             <dl className="grid gap-3 sm:grid-cols-2">
